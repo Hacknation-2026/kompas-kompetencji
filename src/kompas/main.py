@@ -51,4 +51,3 @@ def create_app(settings: Settings | None = None, container: AppContainer | None 
 
 
 app = create_app()
-

@@ -59,6 +59,7 @@ class BM25Retriever(Retriever):
         n = len(self._chunks) or 1
         self._avg_len = (total_len / n) or 1.0
         self._idf = {term: math.log(1.0 + (n - freq + 0.5) / (freq + 0.5)) for term, freq in df.items()}
+        self._oov_idf = math.log(1.0 + (n + 0.5) / 0.5)
 
     def search(self, query: str, top_k: int = 4) -> list[RetrievedChunk]:
         if not self._chunks:
@@ -66,7 +67,7 @@ class BM25Retriever(Retriever):
         q_tokens = tokenize(query, self.stem_length)
         if not q_tokens:
             return []
-        max_possible = sum(self._idf.get(t, 0.0) * (self.k1 + 1.0) for t in set(q_tokens)) or 1.0
+        max_possible = sum(self._idf.get(t, self._oov_idf) * (self.k1 + 1.0) for t in set(q_tokens)) or 1.0
         scored: list[RetrievedChunk] = []
         for chunk, tf in zip(self._chunks, self._tfs, strict=True):
             doc_len = sum(tf.values()) or 1

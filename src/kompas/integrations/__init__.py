@@ -11,4 +11,3 @@ __all__ = [
     "archive_registry",
     "hr_registry",
 ]
-

@@ -41,4 +41,3 @@ class MonitoringService:
 
     def send_reminders(self, as_of: date | None = None, lead_days: int | None = None) -> list[Notification]:
         return self.reminders.dispatch(as_of=as_of, lead_days=lead_days)
-

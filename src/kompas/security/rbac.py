@@ -22,4 +22,3 @@ def require_evaluation_access(user: User, evaluation: Evaluation) -> None:
         return
     if evaluation.evaluator_id != user.id:
         raise AuthorizationError("Brak dostępu do oceny innego przełożonego")
-

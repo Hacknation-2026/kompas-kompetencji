@@ -33,4 +33,3 @@ class StaticFileHRGateway(HRGateway):
             return []
         raw = json.loads(Path(self.path).read_text(encoding="utf-8"))
         return [Employee.model_validate(item) for item in raw]
-

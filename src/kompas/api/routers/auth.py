@@ -26,4 +26,3 @@ def login(body: LoginRequest, container: AppContainer = Depends(get_container)) 
 @router.get("/me", response_model=User)
 def me(user: User = Depends(get_current_user)) -> User:
     return user
-

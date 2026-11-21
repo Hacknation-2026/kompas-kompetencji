@@ -68,4 +68,3 @@ class AssistantAskRequest(BaseModel):
     question: str = Field(min_length=2)
     mode: AssistantMode = AssistantMode.FORMAL
     evaluation_id: str | None = None
-

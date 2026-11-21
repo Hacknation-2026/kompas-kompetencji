@@ -78,7 +78,7 @@ pre-commit: ## Run all pre-commit hooks against all files
 
 # ----------------------------------------------------------------------------- data / models
 kb: ## Build knowledge base text corpus + retrieval index (data/knowledge_base -> models/index)
-	$(PY) scripts/build_knowledge_base.py --materials "$(MATERIALS)"
+	$(PY) scripts/build_knowledge_base.py --materials "$(MATERIALS)" --include-pdfs
 
 import-model: ## Re-generate data/competency_model/*.yaml from Model_kompetencji.xlsx
 	$(UV) run --extra import python scripts/import_competency_model.py --materials "$(MATERIALS)"

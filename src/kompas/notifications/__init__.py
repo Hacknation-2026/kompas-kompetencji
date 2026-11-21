@@ -20,4 +20,3 @@ __all__ = [
     "SmtpNotifier",
     "notifier_registry",
 ]
-

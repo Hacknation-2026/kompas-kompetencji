@@ -75,4 +75,3 @@ def allowed_additional(
         "mandatory": container.criteria_policy.mandatory(form),
         "allowed_additional": container.criteria_policy.allowed_additional(form),
     }
-

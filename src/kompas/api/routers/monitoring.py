@@ -33,4 +33,3 @@ def send_reminders(
     container: AppContainer = Depends(get_container),
 ) -> list[Notification]:
     return container.monitoring.send_reminders(as_of=as_of, lead_days=lead_days)
-

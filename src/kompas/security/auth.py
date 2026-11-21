@@ -117,4 +117,3 @@ class AuthService:
         if user is None or not user.active:
             raise AuthenticationError("Konto użytkownika jest nieaktywne")
         return user
-

@@ -89,6 +89,11 @@ class OllamaLLMClient(LLMClient):
             resp = httpx.post(f"{self.base_url}/api/chat", json=payload, timeout=self.timeout_seconds)
             resp.raise_for_status()
             return str(resp.json()["message"]["content"]).strip()
+        except httpx.ConnectError as exc:
+            raise ExternalServiceError(
+                f"Nie można połączyć z lokalnym serwerem Ollama ({self.base_url}). "
+                f"Uruchom `ollama serve` i pobierz model (`ollama pull {self.model}`)."
+            ) from exc
         except (httpx.HTTPError, KeyError) as exc:
             raise ExternalServiceError(f"Ollama error: {exc}") from exc
 
@@ -138,4 +143,3 @@ class OpenAICompatibleLLMClient(LLMClient):
             return str(resp.json()["choices"][0]["message"]["content"]).strip()
         except (httpx.HTTPError, KeyError, IndexError) as exc:
             raise ExternalServiceError(f"LLM API error: {exc}") from exc
-

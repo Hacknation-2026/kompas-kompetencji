@@ -103,4 +103,3 @@ def build_document_data(
         development_plan=evaluation.development_plan,
         deadlines=[(d.label, d.due_date.isoformat()) for d in evaluation.deadlines],
     )
-

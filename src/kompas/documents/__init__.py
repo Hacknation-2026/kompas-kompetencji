@@ -11,4 +11,3 @@ __all__ = [
     "build_document_data",
     "renderer_registry",
 ]
-

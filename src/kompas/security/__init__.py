@@ -10,4 +10,3 @@ __all__ = [
     "require_evaluation_access",
     "require_role",
 ]
-

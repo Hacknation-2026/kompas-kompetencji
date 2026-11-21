@@ -21,4 +21,3 @@ def health(container: AppContainer = Depends(get_container)) -> dict[str, object
         "retriever_provider": container.settings.retriever.provider,
         "competencies_loaded": len(container.competency_model.competencies),
     }
-

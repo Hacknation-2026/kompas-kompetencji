@@ -64,4 +64,3 @@ def test_workflow_engine_enforces_order_and_requirements(settings: Settings) -> 
     # Negative outcome requires justification
     ev.outcome = EvaluationOutcome(average=3.0, positive=False)
     assert len(engine.unmet_requirements(ev, "decision")) >= 1
-

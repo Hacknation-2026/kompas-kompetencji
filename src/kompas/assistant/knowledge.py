@@ -46,7 +46,10 @@ def _read_pdf(path: Path) -> str:
     from pypdf import PdfReader
 
     reader = PdfReader(str(path))
-    return "\n\n".join(page.extract_text() or "" for page in reader.pages)
+    raw = "\n\n".join(page.extract_text() or "" for page in reader.pages)
+    # Rejoin Polish words broken across PDF line-wraps and collapse whitespace.
+    raw = re.sub(r"-\s*\n\s*", "", raw)
+    return re.sub(r"\s+", " ", raw).strip()
 
 
 class KnowledgeBaseBuilder:
@@ -143,4 +146,3 @@ def load_index(path: Path) -> list[KnowledgeChunk]:
         return []
     raw = json.loads(path.read_text(encoding="utf-8") or "[]")
     return [KnowledgeChunk.model_validate(item) for item in raw]
-

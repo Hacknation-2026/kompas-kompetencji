@@ -42,4 +42,3 @@ def auth_header(client: TestClient, username: str, password: str) -> dict[str, s
     assert resp.status_code == 200, resp.text
     token = resp.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
-

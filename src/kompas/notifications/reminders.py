@@ -83,4 +83,3 @@ class ReminderService:
             self.notifier.send(note)
             dispatched.append(note)
         return dispatched
-

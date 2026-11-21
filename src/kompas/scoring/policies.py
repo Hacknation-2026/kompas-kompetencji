@@ -91,9 +91,7 @@ class PeriodicEvaluationPolicy(OutcomePolicy):
         if lowest:
             positive = False
             neg_lbl = self.scales.label(self.negative_partial).lower()
-            reasons.append(
-                f"Ocena cząstkowa „{neg_lbl}” dla: {', '.join(lowest)} (§ 11 ust. 1 pkt 4)."
-            )
+            reasons.append(f"Ocena cząstkowa „{neg_lbl}” dla: {', '.join(lowest)} (§ 11 ust. 1 pkt 4).")
         if positive:
             reasons.append("Spełnione warunki oceny pozytywnej (§ 11 ust. 1 pkt 3).")
         return EvaluationOutcome(

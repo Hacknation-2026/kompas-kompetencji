@@ -179,4 +179,3 @@ def export_document(
     if archive_ref:
         headers["X-Archive-Ref"] = archive_ref
     return Response(content=content, media_type=media_type, headers=headers)
-

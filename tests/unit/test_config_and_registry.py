@@ -54,4 +54,3 @@ def test_registry_create_filters_dependencies_and_rejects_duplicates() -> None:
 
     with pytest.raises(ConfigurationError):
         reg.get("missing")
-

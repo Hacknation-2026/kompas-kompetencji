@@ -96,4 +96,3 @@ class SmtpNotifier(Notifier):
                 client.send_message(msg)
         except OSError as exc:
             raise ExternalServiceError(f"SMTP error: {exc}") from exc
-

@@ -26,6 +26,7 @@ docs/coverage/
 # Runtime data produced by the application
 data/runtime/
 data/output/
+data/knowledge_base/pdfs/
 
 # Model weights & generated indexes (kept out of git; see models/README.md)
 models/**/*

@@ -33,4 +33,3 @@ class LocalFolderArchive(ArchiveGateway):
         target = target_dir / filename
         target.write_bytes(content)
         return str(target)
-

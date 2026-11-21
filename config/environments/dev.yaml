@@ -5,6 +5,14 @@ app:
 server:
   reload: true
 
+llm:
+  profile: bielik
+
+retriever:
+  provider: hybrid
+  params:
+    bm25_weight: 0.65
+    stem_length: 6
+
 notifications:
   provider: log
-

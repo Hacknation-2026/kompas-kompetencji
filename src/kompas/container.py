@@ -189,4 +189,3 @@ def build_container(settings: Settings | None = None) -> AppContainer:
         hr_gateway=hr_gateway,
         archive=archive,
     )
-
