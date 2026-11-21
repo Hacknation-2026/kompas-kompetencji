@@ -17,6 +17,7 @@ from kompas.core.exceptions import AuthenticationError, ConfigurationError
 from kompas.domain.enums import Role
 from kompas.domain.people import User
 from kompas.persistence.repository import Repository
+from kompas.security.sso import SSOProvider
 
 
 class PasswordHasher:
@@ -109,6 +110,37 @@ class AuthService:
         if not matches or not self.hasher.verify(password, matches[0].password_hash):
             raise AuthenticationError("Nieprawidłowa nazwa użytkownika lub hasło")
         user = matches[0]
+        return user, self.tokens.issue(user)
+
+    def authenticate_sso(self, provider: SSOProvider, assertion_or_token: str) -> tuple[User, str]:
+        """Verify an enterprise SSO token/assertion and upsert the local user."""
+        identity = provider.authenticate(assertion_or_token)
+        matches = self.users.list(lambda u: u.username == identity.username)
+        if matches:
+            user = matches[0]
+            if not user.active:
+                raise AuthenticationError("Konto użytkownika jest nieaktywne")
+            user = user.model_copy(
+                update={
+                    "full_name": identity.full_name,
+                    "email": identity.email or user.email,
+                    "role": identity.role,
+                    "org_unit": identity.org_unit or user.org_unit,
+                    "position": identity.position or user.position,
+                }
+            )
+            self.users.update(user)
+        else:
+            user = User(
+                id=f"sso-{identity.subject}",
+                username=identity.username,
+                full_name=identity.full_name,
+                role=identity.role,
+                email=identity.email,
+                org_unit=identity.org_unit,
+                position=identity.position,
+            )
+            self.users.add(user)
         return user, self.tokens.issue(user)
 
     def current_user(self, token: str) -> User:

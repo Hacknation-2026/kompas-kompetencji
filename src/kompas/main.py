@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from kompas.api.errors import register_exception_handlers
+from kompas.api.ratelimit import SecurityAndRateLimitMiddleware
 from kompas.api.routers import assistant, auth, competencies, evaluations, health, monitoring
 from kompas.container import AppContainer, build_container
 from kompas.core.config import Settings
@@ -39,6 +40,13 @@ def create_app(settings: Settings | None = None, container: AppContainer | None 
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+    application.add_middleware(
+        SecurityAndRateLimitMiddleware,
+        api_prefix=cfg.server.api_prefix,
+        login_limit_per_min=cfg.security.rate_limit_login_per_minute,
+        assistant_limit_per_min=cfg.security.rate_limit_assistant_per_minute,
+    )
 
     register_exception_handlers(application)
 

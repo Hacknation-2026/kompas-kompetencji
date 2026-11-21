@@ -79,6 +79,8 @@ class SecurityConfig(_Section):
     token_ttl_minutes: int = 480
     password_hash_iterations: int = 200_000
     seed_users_file: Path | None = None
+    rate_limit_login_per_minute: int = 20
+    rate_limit_assistant_per_minute: int = 30
 
 
 class PathsConfig(_Section):

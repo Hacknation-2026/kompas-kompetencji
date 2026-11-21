@@ -10,7 +10,11 @@ from kompas.api.deps import get_container, require_hr_or_admin
 from kompas.container import AppContainer
 from kompas.domain.people import User
 from kompas.notifications.notifier import Notification
-from kompas.services.monitoring import MonitoringDashboard
+from kompas.services.monitoring import (
+    AnonymizationReport,
+    AuditEvent,
+    MonitoringDashboard,
+)
 
 router = APIRouter(prefix="/monitoring", tags=["monitoring"])
 
@@ -33,3 +37,21 @@ def send_reminders(
     container: AppContainer = Depends(get_container),
 ) -> list[Notification]:
     return container.monitoring.send_reminders(as_of=as_of, lead_days=lead_days)
+
+
+@router.get("/audit-log", response_model=list[AuditEvent])
+def audit_log(
+    _user: User = Depends(require_hr_or_admin),
+    container: AppContainer = Depends(get_container),
+) -> list[AuditEvent]:
+    return container.monitoring.export_audit_log()
+
+
+@router.post("/retention/anonymize", response_model=AnonymizationReport)
+def anonymize_completed(
+    older_than_days: int = Query(default=365, ge=0, le=3650),
+    as_of: date | None = Query(default=None),
+    _user: User = Depends(require_hr_or_admin),
+    container: AppContainer = Depends(get_container),
+) -> AnonymizationReport:
+    return container.monitoring.anonymize_completed(older_than_days=older_than_days, as_of=as_of)

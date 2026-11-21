@@ -8,7 +8,6 @@ dist/
 .venv/
 venv/
 PLAN.MD
-docs
 # Tooling caches
 .pytest_cache/
 .mypy_cache/

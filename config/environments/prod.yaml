@@ -16,15 +16,17 @@ security:
   seed_users_file: null
 
 repository:
-  provider: json_file
+  provider: postgres
   params:
-    directory: data/runtime/store
+    dsn_env: KOMPAS_DATABASE_URL
+    dsn: "postgresql+psycopg://kompas:kompas@localhost:5432/kompas"
+    pool_pre_ping: true
 
 notifications:
   provider: smtp
   params:
     host: localhost
-    port: 25
+    port: 587
     sender: kompas@mc.gov.pl
-    use_tls: false
+    use_tls: true
 
