@@ -24,7 +24,7 @@ def test_full_periodic_evaluation_and_rbac_flow(client: TestClient) -> None:
     sup2 = auth_header(client, "przelozony2", "demo-password-2")
     hr = auth_header(client, "kadry", "demo-password-hr")
 
-    # 1. Analyze job description
+    # 1. Analyze job description (text + file upload)
     osp = client.post(
         "/api/v1/competencies/analyze-job-description",
         headers=sup1,
@@ -32,6 +32,14 @@ def test_full_periodic_evaluation_and_rbac_flow(client: TestClient) -> None:
     )
     assert osp.status_code == 200
     assert osp.json()["recommended_form"] == "C"
+
+    osp_upload = client.post(
+        "/api/v1/competencies/analyze-job-description/upload",
+        headers=sup1,
+        files={"file": ("osp.txt", b"Analizuje przepisy prawa oraz zarzadzania kryzysowego.", "text/plain")},
+    )
+    assert osp_upload.status_code == 200
+    assert osp_upload.json()["recommended_form"] == "C"
 
     # 2. Start periodic evaluation for emp-2
     created = client.post(
@@ -129,6 +137,14 @@ def test_full_periodic_evaluation_and_rbac_flow(client: TestClient) -> None:
     )
     assert outcome.status_code == 200
     assert outcome.json()["positive"] is True
+
+    promo = client.put(
+        f"/api/v1/evaluations/{ev_id}/rank-promotion",
+        headers=sup1,
+        json={"requested_rank": "III stopień", "rationale": "Bardzo wysoka jakość opinii prawnych."},
+    )
+    assert promo.status_code == 200
+    assert promo.json()["rank_promotion_motion"]["requested_rank"] == "III stopień"
 
     for step_id in ("decision", "acknowledgement"):
         assert (

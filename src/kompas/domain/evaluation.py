@@ -76,6 +76,33 @@ class StepEvent(BaseModel):
     note: str | None = None
 
 
+class ReportDetails(BaseModel):
+    """Sprawozdanie ocenianego – Załącznik nr 3 rozporządzenia z 23.07.2015 r."""
+
+    tasks_performed: str
+    problems_and_solutions: str = ""
+    new_skills_and_knowledge: str = ""
+    improvement_proposals: str = ""
+    period_months: int | None = Field(default=None, ge=1, le=24)
+
+
+class RankPromotionMotion(BaseModel):
+    """Część III arkusza B/C – wniosek o kolejny stopień służbowy (art. 89 ust. 1)."""
+
+    requested_rank: str
+    rationale: str
+
+
+class DeadlineExtension(BaseModel):
+    """Zmiana terminu oceny / złożenia sprawozdania (§ 5 rozp. 2015 / art. 81 ust. 8)."""
+
+    step_id: str
+    previous_due_date: date
+    new_due_date: date
+    reason: str
+    notified_at: datetime = Field(default_factory=utcnow)
+
+
 class Evaluation(BaseModel):
     """Evaluation aggregate root."""
 
@@ -98,9 +125,12 @@ class Evaluation(BaseModel):
     exam_passed: bool | None = None  # None = not applicable
     exam_status_recorded: bool = False
     report_submitted_on_time: bool | None = None
+    report_details: ReportDetails | None = None
     outcome: EvaluationOutcome | None = None
     justification: str | None = None
     development_plan: str | None = None  # wnioski do IPRZ / rozwoju zawodowego
+    rank_promotion_motion: RankPromotionMotion | None = None
+    deadline_extensions: list[DeadlineExtension] = Field(default_factory=list)
     history: list[StepEvent] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime = Field(default_factory=utcnow)

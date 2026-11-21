@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import io
 import re
+from pathlib import Path
 
 from pydantic import BaseModel, Field
 
 from kompas.competency.criteria import CriteriaPolicy
+from kompas.core.exceptions import ValidationError
 from kompas.domain.competency import CompetencyModel
 from kompas.domain.enums import FormType
 
@@ -46,11 +49,60 @@ _MANAGER_PATTERN = re.compile(
 
 
 class JobAnalysisService:
-    """Analyses an OSP text (Opis Stanowiska Pracy) for periodic evaluation setup."""
+    """Analyses an OSP text or uploaded .docx/.pdf file for periodic evaluation setup."""
 
     def __init__(self, model: CompetencyModel, criteria_policy: CriteriaPolicy) -> None:
         self.model = model
         self.criteria_policy = criteria_policy
+
+    @staticmethod
+    def extract_text_from_file(filename: str, content: bytes) -> tuple[str, bool | None]:
+        """Extract text (and optional Word checkbox managerial flag) from .docx/.pdf/.txt."""
+        suffix = Path(filename).suffix.lower()
+        if suffix in {".txt", ".md"}:
+            return content.decode("utf-8", errors="replace"), None
+        if suffix == ".pdf":
+            from pypdf import PdfReader
+
+            reader = PdfReader(io.BytesIO(content))
+            text = "\n".join(page.extract_text() or "" for page in reader.pages)
+            return text, None
+        if suffix == ".docx":
+            import docx
+
+            doc = docx.Document(io.BytesIO(content))
+            parts = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+            manages_flag: bool | None = None
+            for table in doc.tables:
+                for row in table.rows:
+                    row_text = " ".join(c.text.strip() for c in row.cells if c.text.strip())
+                    if row_text:
+                        parts.append(row_text)
+                    xml = row._tr.xml
+                    if "podległych" in row_text.lower() or "kieruje lub koordynuje" in row_text.lower():
+                        # Checked Word form/content-control checkbox near subordinate count
+                        has_checked = 'w:val="1"' in xml or "<w14:checked/>" in xml or "☒" in row_text
+                        if has_checked and "brak podległych" not in row_text.lower():
+                            manages_flag = True
+            return "\n".join(parts), manages_flag
+        raise ValidationError(
+            f"Nieobsługiwany format pliku OSP '{suffix}'. Dozwolone: .docx, .pdf, .txt, .md"
+        )
+
+    def analyze_file(
+        self,
+        filename: str,
+        content: bytes,
+        manages_people: bool | None = None,
+        is_head_of_office: bool = False,
+    ) -> JobAnalysisResult:
+        text, detected_manages = self.extract_text_from_file(filename, content)
+        effective_manages = detected_manages if manages_people is None else manages_people
+        return self.analyze(
+            text=text,
+            manages_people=bool(effective_manages),
+            is_head_of_office=is_head_of_office,
+        )
 
     def analyze(
         self, text: str, manages_people: bool = False, is_head_of_office: bool = False

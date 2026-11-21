@@ -16,13 +16,15 @@ dependencies = [
     "jinja2>=3.1",
     "fpdf2>=2.7",
     "pypdf>=4.0",
+    "python-docx>=1.1",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
 # Local neural embeddings (optional, heavy – downloads models into models/).
 ml = ["sentence-transformers>=3.0"]
-# Tooling used by scripts/ to import source materials (xlsx/docx).
-import = ["openpyxl>=3.1", "python-docx>=1.1"]
+# Tooling used by scripts/ to import Excel source materials.
+import = ["openpyxl>=3.1"]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",

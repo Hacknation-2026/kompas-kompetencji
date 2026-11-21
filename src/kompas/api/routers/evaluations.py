@@ -12,7 +12,9 @@ from kompas.api.schemas import (
     ComputeOutcomeRequest,
     ConfigureCriteriaRequest,
     CreateEvaluationRequest,
+    ExtendDeadlineRequest,
     FirstEvalFactsRequest,
+    RankPromotionRequest,
 )
 from kompas.container import AppContainer
 from kompas.domain.enums import DocumentFormat
@@ -127,6 +129,38 @@ def record_first_eval_facts(
         report_submitted_on_time=body.report_submitted_on_time,
         exam_passed=body.exam_passed,
         exam_applicable=body.exam_applicable,
+        report_details=body.report_details,
+    )
+
+
+@router.put("/{evaluation_id}/rank-promotion", response_model=Evaluation)
+def set_rank_promotion(
+    evaluation_id: str,
+    body: RankPromotionRequest,
+    user: User = Depends(get_current_user),
+    container: AppContainer = Depends(get_container),
+) -> Evaluation:
+    return container.evaluation_service.set_rank_promotion_motion(
+        evaluation_id=evaluation_id,
+        user=user,
+        requested_rank=body.requested_rank,
+        rationale=body.rationale,
+    )
+
+
+@router.post("/{evaluation_id}/deadlines/extend", response_model=Evaluation)
+def extend_deadline(
+    evaluation_id: str,
+    body: ExtendDeadlineRequest,
+    user: User = Depends(get_current_user),
+    container: AppContainer = Depends(get_container),
+) -> Evaluation:
+    return container.evaluation_service.extend_deadline(
+        evaluation_id=evaluation_id,
+        user=user,
+        step_id=body.step_id,
+        new_due_date=body.new_due_date,
+        reason=body.reason,
     )
 
 

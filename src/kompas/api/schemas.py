@@ -7,7 +7,7 @@ from datetime import date
 from pydantic import BaseModel, Field
 
 from kompas.domain.enums import AssistantMode, EvaluationType, FormType
-from kompas.domain.evaluation import IndicatorAssessment
+from kompas.domain.evaluation import IndicatorAssessment, ReportDetails
 
 
 class LoginRequest(BaseModel):
@@ -46,6 +46,18 @@ class FirstEvalFactsRequest(BaseModel):
     report_submitted_on_time: bool | None = None
     exam_passed: bool | None = None
     exam_applicable: bool = True
+    report_details: ReportDetails | None = None
+
+
+class RankPromotionRequest(BaseModel):
+    requested_rank: str = Field(min_length=2)
+    rationale: str = Field(min_length=10)
+
+
+class ExtendDeadlineRequest(BaseModel):
+    step_id: str
+    new_due_date: date
+    reason: str = Field(min_length=3)
 
 
 class ComputeOutcomeRequest(BaseModel):

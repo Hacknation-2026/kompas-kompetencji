@@ -75,6 +75,32 @@ _HTML_TEMPLATE = Template(
   <h3>Wnioski rozwojowe (IPRZ)</h3>
   <p>{{ doc.development_plan }}</p>
   {% endif %}
+
+  {% if doc.report_details %}
+  <h3>Sprawozdanie ocenianego (Załącznik nr 3)</h3>
+  <p><strong>Zadania:</strong> {{ doc.report_details.tasks_performed }}</p>
+  {% if doc.report_details.problems_and_solutions %}
+  <p><strong>Problemy i rozwiązania:</strong> {{ doc.report_details.problems_and_solutions }}</p>
+  {% endif %}
+  {% if doc.report_details.new_skills_and_knowledge %}
+  <p><strong>Nowe umiejętności:</strong> {{ doc.report_details.new_skills_and_knowledge }}</p>
+  {% endif %}
+  {% endif %}
+
+  {% if doc.rank_promotion_motion %}
+  <h3>Część III – Wniosek o przyznanie kolejnego stopnia służbowego</h3>
+  <p><strong>Wnioskowany stopień:</strong> {{ doc.rank_promotion_motion.requested_rank }}</p>
+  <p>{{ doc.rank_promotion_motion.rationale }}</p>
+  {% endif %}
+
+  {% if doc.legal_notice %}
+  <p class="meta">{{ doc.legal_notice }}</p>
+  {% endif %}
+
+  <p class="meta">
+    Podpis oceniającego: ________________________ &nbsp;&nbsp;
+    Podpis ocenianego: ________________________
+  </p>
 </body>
 </html>"""
 )
@@ -164,5 +190,25 @@ class PdfRenderer(DocumentRenderer):
         if data.development_plan:
             pdf.ln(2)
             write_line(f"Wnioski rozwojowe (IPRZ): {data.development_plan}")
+        if data.report_details:
+            pdf.ln(2)
+            write_line("Sprawozdanie ocenianego (Załącznik nr 3):", size=11, height=7)
+            write_line(f"Zadania: {data.report_details.tasks_performed}")
+            if data.report_details.problems_and_solutions:
+                write_line(f"Problemy i rozwiązania: {data.report_details.problems_and_solutions}")
+        if data.rank_promotion_motion:
+            pdf.ln(2)
+            write_line(
+                f"Część III – Wniosek o stopień służbowy ({data.rank_promotion_motion.requested_rank}): "
+                f"{data.rank_promotion_motion.rationale}"
+            )
+        if data.legal_notice:
+            pdf.ln(2)
+            write_line(data.legal_notice, size=9, height=5)
+        pdf.ln(4)
+        write_line(
+            "Podpis oceniającego: ________________________    Podpis ocenianego: ________________________",
+            size=9,
+        )
 
         return bytes(pdf.output())

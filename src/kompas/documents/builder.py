@@ -6,7 +6,8 @@ from pydantic import BaseModel, Field
 
 from kompas.competency.criteria import FormDefinition
 from kompas.domain.competency import CompetencyModel
-from kompas.domain.evaluation import Evaluation
+from kompas.domain.enums import EvaluationType
+from kompas.domain.evaluation import Evaluation, RankPromotionMotion, ReportDetails
 from kompas.domain.people import Employee, User
 from kompas.scoring.scales import RatingScales
 
@@ -35,11 +36,14 @@ class EvaluationDocumentData(BaseModel):
     goals: list[str] = Field(default_factory=list)
     exam_status: str | None = None
     report_status: str | None = None
+    report_details: ReportDetails | None = None
     average: float | None = None
     overall_label: str | None = None
     positive: bool | None = None
     justification: str | None = None
     development_plan: str | None = None
+    rank_promotion_motion: RankPromotionMotion | None = None
+    legal_notice: str | None = None
     deadlines: list[tuple[str, str]] = Field(default_factory=list)
 
 
@@ -81,6 +85,14 @@ def build_document_data(
     if evaluation.report_submitted_on_time is not None:
         report_status = "W terminie" if evaluation.report_submitted_on_time else "Po terminie / brak"
 
+    legal_notice = (
+        "Pouczenie: Zgodnie z art. 83 ust. 1 ustawy z dnia 21 listopada 2008 r. o służbie cywilnej "
+        "od oceny okresowej służy, w terminie 7 dni od dnia zapoznania się z oceną, sprzeciw do "
+        "dyrektora generalnego urzędu."
+        if evaluation.type is EvaluationType.PERIODIC
+        else None
+    )
+
     return EvaluationDocumentData(
         evaluation_id=evaluation.id,
         office_name=office_name,
@@ -96,10 +108,13 @@ def build_document_data(
         goals=list(evaluation.goals),
         exam_status=exam_status,
         report_status=report_status,
+        report_details=evaluation.report_details,
         average=evaluation.outcome.average if evaluation.outcome else None,
         overall_label=evaluation.outcome.overall_label if evaluation.outcome else None,
         positive=evaluation.outcome.positive if evaluation.outcome else None,
         justification=evaluation.justification,
         development_plan=evaluation.development_plan,
+        rank_promotion_motion=evaluation.rank_promotion_motion,
+        legal_notice=legal_notice,
         deadlines=[(d.label, d.due_date.isoformat()) for d in evaluation.deadlines],
     )

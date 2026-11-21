@@ -13,9 +13,12 @@ from kompas.domain.competency import CompetencyModel
 from kompas.domain.enums import DocumentFormat, EvaluationType, FormType
 from kompas.domain.evaluation import (
     CriterionAssessment,
+    DeadlineExtension,
     Evaluation,
     EvaluationOutcome,
     IndicatorAssessment,
+    RankPromotionMotion,
+    ReportDetails,
     utcnow,
 )
 from kompas.domain.people import Employee, User
@@ -187,10 +190,17 @@ class EvaluationService:
         report_submitted_on_time: bool | None = None,
         exam_passed: bool | None = None,
         exam_applicable: bool = True,
+        report_details: ReportDetails | None = None,
     ) -> Evaluation:
         ev = self.get(evaluation_id, user)
         if ev.type is not EvaluationType.FIRST:
             raise ValidationError("Egzamin i sprawozdanie dotyczą wyłącznie pierwszej oceny")
+        if report_details is not None:
+            if report_details.period_months is not None and report_details.period_months < 7:
+                raise ValidationError(
+                    "Sprawozdanie musi obejmować okres nie krótszy niż 7 miesięcy (§ 6 ust. 1)"
+                )
+            ev.report_details = report_details
         if report_submitted_on_time is not None:
             ev.report_submitted_on_time = report_submitted_on_time
         if not exam_applicable:
@@ -201,6 +211,57 @@ class EvaluationService:
             ev.exam_status_recorded = True
         ev.touch()
         return self.evaluations.update(ev)
+
+    def set_rank_promotion_motion(
+        self,
+        evaluation_id: str,
+        user: User,
+        requested_rank: str,
+        rationale: str,
+    ) -> Evaluation:
+        """Część III arkusza B/C – wniosek o kolejny stopień służbowy (art. 89 ust. 1)."""
+        ev = self.get(evaluation_id, user)
+        if ev.type is not EvaluationType.PERIODIC:
+            raise ValidationError("Wniosek o stopień służbowy dotyczy wyłącznie oceny okresowej")
+        employee = self.employees.get(ev.employee_id)
+        if not employee.is_civil_servant:
+            raise ValidationError(
+                "Wniosek o stopień służbowy przysługuje wyłącznie urzędnikowi służby cywilnej"
+            )
+        if ev.outcome is None or not ev.outcome.positive:
+            raise ValidationError("Wniosek o stopień służbowy wymaga pozytywnej oceny okresowej")
+        ev.rank_promotion_motion = RankPromotionMotion(
+            requested_rank=requested_rank.strip(),
+            rationale=rationale.strip(),
+        )
+        ev.touch()
+        return self.evaluations.update(ev)
+
+    def extend_deadline(
+        self,
+        evaluation_id: str,
+        user: User,
+        step_id: str,
+        new_due_date: date,
+        reason: str,
+    ) -> Evaluation:
+        """Extend a step deadline (§ 5 rozp. 2015 / art. 81 ust. 8 ustawy)."""
+        ev = self.get(evaluation_id, user)
+        for dl in ev.deadlines:
+            if dl.step_id == step_id:
+                prev = dl.due_date
+                dl.due_date = new_due_date
+                ev.deadline_extensions.append(
+                    DeadlineExtension(
+                        step_id=step_id,
+                        previous_due_date=prev,
+                        new_due_date=new_due_date,
+                        reason=reason.strip(),
+                    )
+                )
+                ev.touch()
+                return self.evaluations.update(ev)
+        raise ValidationError(f"Brak zdefiniowanego terminu dla etapu '{step_id}'")
 
     def compute_outcome(
         self,

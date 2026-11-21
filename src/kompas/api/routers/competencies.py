@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 
 from kompas.api.deps import get_container, get_current_user
 from kompas.api.schemas import JobAnalysisRequest
@@ -61,6 +61,23 @@ def analyze_job_description(
         text=body.text,
         manages_people=body.manages_people,
         is_head_of_office=body.is_head_of_office,
+    )
+
+
+@router.post("/analyze-job-description/upload", response_model=JobAnalysisResult)
+async def analyze_job_description_file(
+    file: UploadFile = File(...),
+    manages_people: bool | None = Form(default=None),
+    is_head_of_office: bool = Form(default=False),
+    _user: User = Depends(get_current_user),
+    container: AppContainer = Depends(get_container),
+) -> JobAnalysisResult:
+    content = await file.read()
+    return container.job_analysis.analyze_file(
+        filename=file.filename or "osp.txt",
+        content=content,
+        manages_people=manages_people,
+        is_head_of_office=is_head_of_office,
     )
 
 
