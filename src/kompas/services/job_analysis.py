@@ -17,18 +17,32 @@ class JobAnalysisResult(BaseModel):
     rationale: str
 
 
-# Keywords mapped to competency ids (from Poradnik / Rozporządzenie descriptions).
+# Keywords mapped to competency ids (calibrated against official MC OSP templates & Poradnik).
 _COMPETENCY_KEYWORDS: dict[str, tuple[str, ...]] = {
-    "myslenie_analityczne": ("analiz", "orzeczn", "danych", "wniosk", "ocen", "raport"),
-    "negocjowanie": ("negocj", "porozum", "uzgodn", "kontrakt", "umów", "umow"),
-    "wystapienia_publiczne": ("prezent", "wystąp", "konferenc", "szkolen", "audytor", "reprezent"),
+    "myslenie_analityczne": ("myślenie analityczne", "analiz", "orzeczn", "danych", "wniosk", "raport"),
+    "negocjowanie": ("negocj", "porozum", "uzgodn", "przekonyw", "godzenie interesów", "kontrakt"),
+    "wystapienia_publiczne": ("wystąpie", "prezent", "konferenc", "szkolen", "audytor", "reprezent"),
     "orientacja_na_klienta": ("klient", "interesant", "obywatel", "wnioskodawc", "obsług"),
-    "radzenie_sobie_w_kryzysie": ("kryzys", "incydent", "awari", "zagroż", "eskalac", "ryzyk"),
-    "kreatywnosc": ("innowac", "nowych rozwiązań", "koncepcj", "projektow", "usprawn"),
-    "zarzadzanie_strategiczne": ("strateg", "wizj", "długofalow", "polityk"),
-    "podejmowanie_decyzji": ("decyzj", "rozstrzyg", "samodzieln", "odpowiedzialn"),
-    "zarzadzanie_ludzmi": ("kieruj", "zespoł", "podległ", "delegow", "nadzoruj"),
+    "radzenie_sobie_w_kryzysie": (
+        "zarządzania kryzysowego",
+        "kryzys",
+        "incydent",
+        "awari",
+        "zagroż",
+        "eskalac",
+    ),
+    "kreatywnosc": ("kreatywn", "innowac", "nowych rozwiązań", "koncepcj", "projektow", "usprawn"),
+    "zarzadzanie_strategiczne": ("zarządzanie strategiczne", "strateg", "wizj", "długofalow", "polityk"),
+    "podejmowanie_decyzji": ("podejmowanie decyzji", "decyzj", "rozstrzyg", "samodzieln", "odpowiedzialn"),
+    "zarzadzanie_ludzmi": ("zarządzanie ludźmi", "kieruj", "zespoł", "podległ", "delegow", "nadzoruj"),
+    "wykorzystywanie_wiedzy": ("wykorzystywanie wiedzy", "doskonalenie zawodowe", "wiedzy eksperckiej"),
+    "rzetelnosc": ("rzeteln", "jakość", "procedur", "terminow", "kontrol"),
 }
+
+_MANAGER_PATTERN = re.compile(
+    r"kieruje\s+pracą|bezpośredniego\s+przełożonego|zarządzając\s+zespołem|"
+    r"ocena\s+pracy\s+podległych|naczelnik\s+wydziału|kieruje\s+zespołem",
+)
 
 
 class JobAnalysisService:
@@ -44,7 +58,7 @@ class JobAnalysisService:
         lower = text.lower()
         if is_head_of_office:
             form = FormType.A
-        elif manages_people or bool(re.search(r"kieruje\s+pracą|podległych\s+pracowników|naczelnik", lower)):
+        elif manages_people or bool(_MANAGER_PATTERN.search(lower)):
             form = FormType.B
         else:
             form = FormType.C

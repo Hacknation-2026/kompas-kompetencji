@@ -1,0 +1,12 @@
+# Open-source Polish LLM: Bielik (SpeakLeash, Apache 2.0 – no paid license).
+# Served locally via Ollama (data never leaves the machine):
+#   ollama pull SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M
+# (or smaller 4-bit / 7B variants if RAM/VRAM is limited)
+provider: ollama
+params:
+  base_url: http://localhost:11434
+  model: SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M
+  temperature: 0.1
+  timeout_seconds: 120
+  num_ctx: 8192
+

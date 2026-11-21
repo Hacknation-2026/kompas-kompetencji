@@ -13,11 +13,16 @@ from kompas.core.config import get_settings
 
 
 def extract_pdfs_from_materials(materials: Path, target_dir: Path) -> int:
-    """Optionally unpack legal PDFs from HackNation.zip into ``target_dir``."""
+    """Copy loose PDFs and/or unpack PDFs from zip archives in ``materials`` into ``target_dir``."""
     if not materials.exists():
         return 0
     extracted = 0
     target_dir.mkdir(parents=True, exist_ok=True)
+    for pdf in materials.rglob("*.pdf"):
+        dest = target_dir / pdf.name
+        if not dest.exists():
+            dest.write_bytes(pdf.read_bytes())
+            extracted += 1
     for archive in materials.rglob("*.zip"):
         with zipfile.ZipFile(archive) as zf:
             for member in zf.namelist():

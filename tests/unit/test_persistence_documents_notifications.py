@@ -44,13 +44,21 @@ def test_in_memory_and_json_file_repositories(tmp_path: Path) -> None:
 
 
 def test_job_analysis_detects_manager_and_recommends_criteria(container: AppContainer) -> None:
-    res = container.job_analysis.analyze(
-        "Naczelnik wydziału kieruje pracą 8 podległych pracowników, analizuje ryzyko i sytuacje kryzysowe."
+    res_b = container.job_analysis.analyze(
+        "Pełni funkcję bezpośredniego przełożonego, zarządzając zespołem, delegowanie obowiązków, "
+        "organizuje konferencje międzynarodowe i odpowiada na zapytania."
     )
-    assert res.recommended_form is FormType.B
-    assert any(
-        item["competency_id"] == "radzenie_sobie_w_kryzysie" for item in res.recommended_additional_criteria
+    assert res_b.recommended_form is FormType.B
+    rec_ids_b = {item["competency_id"] for item in res_b.recommended_additional_criteria}
+    assert "wystapienia_publiczne" in rec_ids_b
+
+    res_c = container.job_analysis.analyze(
+        "Prowadzenie spraw dotyczących zarządzania kryzysowego w cyberprzestrzeni. "
+        "Kompetencje miękkie: myślenie analityczne, wykorzystywanie wiedzy i doskonalenie zawodowe."
     )
+    assert res_c.recommended_form is FormType.C
+    rec_ids_c = {item["competency_id"] for item in res_c.recommended_additional_criteria}
+    assert {"radzenie_sobie_w_kryzysie", "myslenie_analityczne"} <= rec_ids_c
 
 
 def test_documents_and_reminders(container: AppContainer) -> None:

@@ -2,6 +2,9 @@ app:
   environment: dev
   debug: true
 
+embeddings:
+  profile: sentence_transformers
+  
 server:
   reload: true
 
