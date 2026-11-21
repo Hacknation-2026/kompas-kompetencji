@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date
+from datetime import date, timedelta
 
 from kompas.competency.criteria import CriteriaPolicy, FormSelector
 from kompas.core.exceptions import ValidationError
@@ -28,7 +28,7 @@ from kompas.scoring.aggregation import IndicatorAggregationStrategy
 from kompas.scoring.policies import EvaluationContext, OutcomePolicy
 from kompas.scoring.scales import RatingScales
 from kompas.security.rbac import require_evaluation_access
-from kompas.workflow.deadlines import compute_anchors, compute_deadlines
+from kompas.workflow.deadlines import add_months, compute_anchors, compute_deadlines, next_working_day
 from kompas.workflow.engine import WorkflowEngine
 
 
@@ -82,10 +82,16 @@ class EvaluationService:
         user: User,
         form_override: FormType | None = None,
         period_anchor: date | None = None,
+        is_post_negative_reevaluation: bool = False,
     ) -> Evaluation:
         employee = self.employees.get(employee_id)
         if user.role.value == "supervisor" and employee.supervisor_id != user.id:
             raise ValidationError("Możesz rozpocząć ocenę wyłącznie podległego pracownika")
+
+        if is_post_negative_reevaluation and evaluation_type is not EvaluationType.PERIODIC:
+            raise ValidationError(
+                "Ponowna ocena po 6 miesiącach dotyczy wyłącznie oceny okresowej (art. 81 ust. 9 ustawy)"
+            )
 
         form = form_override or self.form_selector.select(evaluation_type, employee)
         form_def = self.criteria_policy.form(form)
@@ -102,10 +108,17 @@ class EvaluationService:
                 or employee.indefinite_employment_date
                 or employee.employment_start
             )
+            if is_post_negative_reevaluation:
+                anchors["evaluation_due"] = add_months(anchors["period_anchor"], 6)
 
         path = self.workflow.path(evaluation_type)
         anchors = compute_anchors(path, anchors)
         deadlines = compute_deadlines(path, anchors)
+        if is_post_negative_reevaluation:
+            for dl in deadlines:
+                if dl.step_id == "criteria_setting":
+                    dl.due_date = next_working_day(anchors["period_anchor"] + timedelta(days=7))
+                    dl.legal_basis = "§ 7 pkt 2 rozporządzenia z 04.04.2016 r."
 
         evaluation = Evaluation(
             id=f"eval-{uuid.uuid4().hex[:10]}",
@@ -116,6 +129,7 @@ class EvaluationService:
             current_step=self.workflow.first_step(evaluation_type).id,
             anchors=anchors,
             deadlines=deadlines,
+            is_post_negative_reevaluation=is_post_negative_reevaluation,
             mandatory_criteria=self.criteria_policy.mandatory(form),
             exam_status_recorded=not employee.preparatory_exam_required,
             exam_passed=None if not employee.preparatory_exam_required else False,

@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import zipfile
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import httpx
 import pytest
 from fpdf import FPDF
+from scripts.build_knowledge_base import extract_pdfs_from_materials
+from scripts.build_knowledge_base import main as build_kb_main
 
 from kompas.assistant.knowledge import KnowledgeBaseBuilder, load_index, save_index
 from kompas.assistant.llm import OllamaLLMClient, OpenAICompatibleLLMClient
@@ -106,3 +109,43 @@ def test_assistant_retrieves_statutory_rules_from_full_kb(container: AppContaine
     )
     assert q2.grounded is True
     assert "14 dni" in q2.answer or any("14 dni" in c.excerpt for c in q2.citations)
+
+
+def test_build_knowledge_base_script_extracts_and_builds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    materials = tmp_path / "materials"
+    materials.mkdir()
+    loose_pdf = materials / "loose.pdf"
+    loose_pdf.write_bytes(b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF")
+
+    zip_path = materials / "pack.zip"
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("nested/in_zip.pdf", b"%PDF-1.4\n%%EOF")
+        zf.writestr("nested/ignore.txt", b"ignored")
+
+    target_dir = tmp_path / "out_pdfs"
+    count = extract_pdfs_from_materials(materials, target_dir)
+    assert count == 2
+    assert (target_dir / "loose.pdf").is_file()
+    assert (target_dir / "in_zip.pdf").is_file()
+    assert not (target_dir / "ignore.txt").exists()
+    # Second run skips already extracted files
+    assert extract_pdfs_from_materials(materials, target_dir) == 0
+    assert extract_pdfs_from_materials(tmp_path / "missing", target_dir) == 0
+
+    kb_dir = tmp_path / "kb"
+    kb_dir.mkdir()
+    (kb_dir / "guide.md").write_text("Rozmowa wstępna odbywa się w ciągu 21 dni.", encoding="utf-8")
+    out_index = tmp_path / "index" / "chunks.json"
+
+    from kompas.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings.assistant, "knowledge_base_dir", kb_dir)
+    monkeypatch.setattr(settings.assistant, "faq_file", None)
+    monkeypatch.setattr(settings.assistant, "index_file", out_index)
+    assert build_kb_main(["--materials", str(materials), "--include-pdfs"]) == 0
+    assert out_index.is_file()
+    loaded = load_index(out_index)
+    assert any("21 dni" in c.text for c in loaded)

@@ -9,6 +9,11 @@ from tests.conftest import auth_header
 
 @pytest.mark.integration
 def test_health_and_auth_guards(client: TestClient) -> None:
+    ui = client.get("/")
+    assert ui.status_code == 200
+    assert "Kompas Kompetencji" in ui.text
+    assert client.get("/static/app.js").status_code == 200
+
     health = client.get("/api/v1/health")
     assert health.status_code == 200
     assert health.json()["competencies_loaded"] == 14
@@ -164,3 +169,172 @@ def test_full_periodic_evaluation_and_rbac_flow(client: TestClient) -> None:
     dash = client.get("/api/v1/monitoring/dashboard", headers=hr)
     assert dash.status_code == 200
     assert dash.json()["completed"] == 1
+
+
+@pytest.mark.integration
+def test_first_evaluation_e2e_deadlines_and_reevaluation(client: TestClient) -> None:
+    sup1 = auth_header(client, "przelozony", "demo-password-1")
+
+    # 1. Create First Evaluation for emp-1 (no preparatory exam passed yet)
+    created = client.post(
+        "/api/v1/evaluations",
+        headers=sup1,
+        json={"employee_id": "emp-1", "evaluation_type": "first"},
+    )
+    assert created.status_code == 201
+    ev_id = created.json()["id"]
+    assert created.json()["form"] == "FIRST"
+
+    # 2. Initial interview
+    assert (
+        client.post(
+            f"/api/v1/evaluations/{ev_id}/steps/complete",
+            headers=sup1,
+            json={"step_id": "initial_interview"},
+        ).status_code
+        == 200
+    )
+
+    # 3. Extend deadline for report step (§ 5 rozp. 2015)
+    ext = client.post(
+        f"/api/v1/evaluations/{ev_id}/deadlines/extend",
+        headers=sup1,
+        json={"step_id": "report", "new_due_date": "2026-12-15", "reason": "Usprawiedliwiona nieobecność"},
+    )
+    assert ext.status_code == 200
+    assert len(ext.json()["deadline_extensions"]) == 1
+
+    # 4. Report step: < 7 months rejected, >= 7 months accepted with full Załącznik nr 3
+    bad_rep = client.put(
+        f"/api/v1/evaluations/{ev_id}/first-eval-facts",
+        headers=sup1,
+        json={
+            "report_submitted_on_time": True,
+            "report_details": {"tasks_performed": "Analiza aktów", "period_months": 5},
+        },
+    )
+    assert bad_rep.status_code == 422
+
+    good_rep = client.put(
+        f"/api/v1/evaluations/{ev_id}/first-eval-facts",
+        headers=sup1,
+        json={
+            "report_submitted_on_time": True,
+            "report_details": {
+                "tasks_performed": "Przygotowanie projektów odpowiedzi i analiz prawnych.",
+                "problems_and_solutions": "Konsultacje z zespołem prawnym.",
+                "new_skills_and_knowledge": "Znajomość KPA i procedur MC.",
+                "improvement_proposals": "Szablon checklisty dla nowych spraw.",
+                "period_months": 8,
+            },
+        },
+    )
+    assert good_rep.status_code == 200
+    assert (
+        client.post(
+            f"/api/v1/evaluations/{ev_id}/steps/complete",
+            headers=sup1,
+            json={"step_id": "report"},
+        ).status_code
+        == 200
+    )
+
+    # 5. Competency assessment with STAR evidence notes
+    model = client.get("/api/v1/competencies/model", headers=sup1).json()
+    by_id = {c["id"]: c for c in model["competencies"]}
+    for cid in good_rep.json()["mandatory_criteria"]:
+        observations = [
+            {
+                "indicator_id": ind["id"],
+                "observed_points": 5,
+                "evidence": "S: Projekt odpowiedzi; D: Terminowe opracowanie; R: Akceptacja bez uwag.",
+            }
+            for ind in by_id[cid]["indicators"]
+        ]
+        resp = client.put(
+            f"/api/v1/evaluations/{ev_id}/criteria/{cid}/assessment",
+            headers=sup1,
+            json={"indicators": observations, "final_points": 5},
+        )
+        assert resp.status_code == 200
+
+    assert (
+        client.post(
+            f"/api/v1/evaluations/{ev_id}/steps/complete",
+            headers=sup1,
+            json={"step_id": "competency_assessment"},
+        ).status_code
+        == 200
+    )
+
+    # 6. Evaluation interview
+    assert (
+        client.post(
+            f"/api/v1/evaluations/{ev_id}/steps/complete",
+            headers=sup1,
+            json={"step_id": "evaluation_interview"},
+        ).status_code
+        == 200
+    )
+
+    # 7. Decision: negative (exam_passed=False) -> requires justification; then positive (exam_passed=True)
+    client.put(
+        f"/api/v1/evaluations/{ev_id}/first-eval-facts",
+        headers=sup1,
+        json={"exam_applicable": True, "exam_passed": False},
+    )
+    neg_outcome = client.post(
+        f"/api/v1/evaluations/{ev_id}/outcome",
+        headers=sup1,
+        json={"justification": "Niezaliczony egzamin ze służby przygotowawczej."},
+    )
+    assert neg_outcome.status_code == 200
+    assert neg_outcome.json()["positive"] is False
+
+    client.put(
+        f"/api/v1/evaluations/{ev_id}/first-eval-facts",
+        headers=sup1,
+        json={"exam_applicable": True, "exam_passed": True},
+    )
+    pos_outcome = client.post(
+        f"/api/v1/evaluations/{ev_id}/outcome",
+        headers=sup1,
+        json={"justification": "Pozytywny wynik egzaminu poprawkowego i dobra realizacja zadań."},
+    )
+    assert pos_outcome.status_code == 200
+    assert pos_outcome.json()["positive"] is True
+
+    # 8. Complete decision & acknowledgement -> PDF download
+    for step_id in ("decision", "acknowledgement"):
+        assert (
+            client.post(
+                f"/api/v1/evaluations/{ev_id}/steps/complete",
+                headers=sup1,
+                json={"step_id": step_id},
+            ).status_code
+            == 200
+        )
+
+    pdf = client.get(f"/api/v1/evaluations/{ev_id}/document?fmt=pdf", headers=sup1)
+    assert pdf.status_code == 200
+    assert pdf.content.startswith(b"%PDF")
+
+    # 9. Post-negative 6-month re-evaluation & form_override
+    reeval = client.post(
+        "/api/v1/evaluations",
+        headers=sup1,
+        json={
+            "employee_id": "emp-2",
+            "evaluation_type": "periodic",
+            "form_override": "B",
+            "period_anchor": "2026-01-10",
+            "is_post_negative_reevaluation": True,
+        },
+    )
+    assert reeval.status_code == 201
+    r_data = reeval.json()
+    assert r_data["form"] == "B"
+    assert r_data["is_post_negative_reevaluation"] is True
+    assert r_data["anchors"]["evaluation_due"] == "2026-07-10"
+    crit_dl = next(d for d in r_data["deadlines"] if d["step_id"] == "criteria_setting")
+    assert crit_dl["due_date"] == "2026-01-17"  # 2026-01-17 is Saturday (7 days after 2026-01-10)

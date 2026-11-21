@@ -5,7 +5,8 @@
 # =============================================================================
 
 UV        ?= uv
-PY        := $(UV) run python
+UV_RUN    := $(UV) run --no-sync
+PY        := $(UV_RUN) python
 SRC       := src/kompas
 HOST      ?= 127.0.0.1
 PORT      ?= 8000
@@ -40,26 +41,26 @@ test test-unit test-integration cov verify: export KOMPAS_ENV = test
 
 # ----------------------------------------------------------------------------- run
 run: ## Run API (uvicorn) using config/environments/$(ENV).yaml
-	$(UV) run uvicorn kompas.main:app --host $(HOST) --port $(PORT)
+	$(UV_RUN) uvicorn kompas.main:app --host $(HOST) --port $(PORT)
 
 dev: ## Run API with auto-reload
-	$(UV) run uvicorn kompas.main:app --host $(HOST) --port $(PORT) --reload --reload-dir src --reload-dir config
+	$(UV_RUN) uvicorn kompas.main:app --host $(HOST) --port $(PORT) --reload --reload-dir src --reload-dir config
 
 serve: ## Run API through the package entry point (reads server section of config)
 	$(PY) -m kompas
 
 # ----------------------------------------------------------------------------- quality
 test: ## Run full test-suite
-	$(UV) run pytest
+	$(UV_RUN) pytest
 
 test-unit: ## Run unit tests only
-	$(UV) run pytest -m "not integration"
+	$(UV_RUN) pytest -m "not integration"
 
 test-integration: ## Run API integration tests only
-	$(UV) run pytest -m integration
+	$(UV_RUN) pytest -m integration
 
 cov: ## Run tests with coverage report (fails under threshold from pyproject)
-	$(UV) run pytest --cov --cov-report=term-missing --cov-report=html:docs/coverage
+	$(UV_RUN) pytest --cov --cov-report=term-missing --cov-report=html:docs/coverage
 
 lint: ## Ruff lint
 	$(UV) run ruff check src tests scripts

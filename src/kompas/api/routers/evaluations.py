@@ -54,6 +54,7 @@ def create_evaluation(
         user=user,
         form_override=body.form_override,
         period_anchor=body.period_anchor,
+        is_post_negative_reevaluation=body.is_post_negative_reevaluation,
     )
 
 

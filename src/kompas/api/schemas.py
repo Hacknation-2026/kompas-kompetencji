@@ -28,6 +28,7 @@ class CreateEvaluationRequest(BaseModel):
     evaluation_type: EvaluationType
     form_override: FormType | None = None
     period_anchor: date | None = None
+    is_post_negative_reevaluation: bool = False
 
 
 class ConfigureCriteriaRequest(BaseModel):

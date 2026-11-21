@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from kompas.assistant.embeddings import HashingEmbeddingModel
+import pytest
+
+from kompas.assistant.embeddings import HashingEmbeddingModel, SentenceTransformerEmbeddingModel
 from kompas.assistant.guardrails import PersonalDataGuardrail, RatingDecisionGuardrail
 from kompas.assistant.knowledge import KnowledgeChunk, chunk_text
 from kompas.assistant.retriever import BM25Retriever, EmbeddingRetriever, HybridRetriever
@@ -68,3 +70,27 @@ def test_assistant_answers_with_citations_and_prepares_conversation(container: A
     prep = container.assistant.prepare_conversation(ev, container.competency_model, container.scales)
     assert len(prep.opening_questions) >= 3
     assert len(prep.criterion_prompts) == len(ev.criteria)
+
+
+@pytest.mark.slow
+def test_live_hybrid_retriever_with_sentence_transformers() -> None:
+    pytest.importorskip("sentence_transformers")
+    chunks = [
+        KnowledgeChunk(
+            id="1",
+            source="ustawa.pdf",
+            title="Sprzeciw",
+            text="Od oceny okresowej przysługuje sprzeciw do dyrektora generalnego w terminie 7 dni.",
+        ),
+        KnowledgeChunk(
+            id="2",
+            source="poradnik.pdf",
+            title="Rozmowa wstępna",
+            text="Rozmowę wstępną przeprowadza się w ciągu 21 dni od nawiązania stosunku pracy.",
+        ),
+    ]
+    retriever = HybridRetriever(SentenceTransformerEmbeddingModel())
+    retriever.index(chunks)
+    hits = retriever.search("Ile czasu ma pracownik na odwołanie od oceny?", top_k=2)
+    assert hits
+    assert hits[0].chunk.id == "1"

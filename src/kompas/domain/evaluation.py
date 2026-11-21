@@ -116,6 +116,7 @@ class Evaluation(BaseModel):
     completed_steps: list[str] = Field(default_factory=list)
     anchors: dict[str, date] = Field(default_factory=dict)
     deadlines: list[Deadline] = Field(default_factory=list)
+    is_post_negative_reevaluation: bool = False
     mandatory_criteria: list[str] = Field(default_factory=list)
     additional_criteria: list[str] = Field(default_factory=list)
     criteria_confirmed: bool = False
