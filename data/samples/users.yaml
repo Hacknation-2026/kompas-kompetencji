@@ -1,0 +1,38 @@
+# Fictional demo accounts – loaded when security.seed_users_file is set (dev/test only).
+users:
+  - id: sup-1
+    username: przelozony
+    password: demo-password-1
+    full_name: "Anna Kowalska"
+    role: supervisor
+    email: "anna.kowalska@mc.example.gov.pl"
+    org_unit: "Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji"
+    position: "Naczelnik Wydziału"
+
+  - id: sup-2
+    username: przelozony2
+    password: demo-password-2
+    full_name: "Marek Nowak"
+    role: supervisor
+    email: "marek.nowak@mc.example.gov.pl"
+    org_unit: "Departament Cyberbezpieczeństwa"
+    position: "Zastępca Dyrektora"
+
+  - id: hr-1
+    username: kadry
+    password: demo-password-hr
+    full_name: "Katarzyna Wiśniewska"
+    role: hr
+    email: "kadry@mc.example.gov.pl"
+    org_unit: "Biuro Dyrektora Generalnego"
+    position: "Główny Specjalista ds. Kadr"
+
+  - id: admin-1
+    username: admin
+    password: demo-password-admin
+    full_name: "Piotr Zieliński"
+    role: admin
+    email: "admin@mc.example.gov.pl"
+    org_unit: "Biuro Dyrektora Generalnego"
+    position: "Administrator Systemu"
+

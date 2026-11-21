@@ -1,0 +1,49 @@
+# See https://pre-commit.com for more information
+default_language_version:
+  python: python3
+exclude: ^(\[Ministerstwo Cyfryzacji.*|docs/coverage/.*|models/.*\.(bin|gguf|safetensors|pt))$
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^data/knowledge_base/
+      - id: end-of-file-fixer
+        exclude: ^data/knowledge_base/
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+        exclude: ^data/knowledge_base/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (uv)
+        entry: uv run mypy
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^src/
+
+      - id: pytest-cov
+        name: pytest with coverage gate (uv)
+        entry: uv run pytest --cov -q
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+

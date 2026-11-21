@@ -1,0 +1,9 @@
+# Multilingual neural embeddings (requires `make install-ml`).
+# Model weights are cached in models/embeddings/ (see models/README.md).
+provider: sentence_transformers
+params:
+  model_name: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+  cache_dir: models/embeddings
+  device: cpu
+  normalize: true
+

@@ -1,0 +1,53 @@
+[
+  {
+    "id": "emp-1",
+    "first_name": "Jan",
+    "last_name": "Kowalski",
+    "org_unit": "Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji",
+    "position": "Młodszy specjalista",
+    "position_symbol": "DSI-WWI-12",
+    "supervisor_id": "sup-1",
+    "employment_start": "2026-03-01",
+    "contract_end": "2027-02-28",
+    "is_civil_servant": false,
+    "manages_people": false,
+    "is_head_of_office": false,
+    "preparatory_exam_required": true,
+    "job_description_summary": "Wsparcie merytoryczne w zakresie analizy regulacji prawnych i przygotowywania projektów odpowiedzi."
+  },
+  {
+    "id": "emp-2",
+    "first_name": "Ewa",
+    "last_name": "Majewska",
+    "org_unit": "Departament Rozwoju i Bezpieczeństwa Sztucznej Inteligencji",
+    "position": "Radca",
+    "position_symbol": "DSI-WWI-5",
+    "supervisor_id": "sup-1",
+    "employment_start": "2022-05-10",
+    "indefinite_employment_date": "2023-05-10",
+    "last_evaluation_date": "2025-01-15",
+    "is_civil_servant": true,
+    "manages_people": false,
+    "is_head_of_office": false,
+    "preparatory_exam_required": false,
+    "job_description_summary": "Analizuje i dokonuje oceny prawa krajowego oraz unijnego w obszarze sztucznej inteligencji, przygotowuje opinie indywidualne, współpracuje z UODO."
+  },
+  {
+    "id": "emp-3",
+    "first_name": "Tomasz",
+    "last_name": "Wójcik",
+    "org_unit": "Departament Cyberbezpieczeństwa",
+    "position": "Naczelnik Wydziału",
+    "position_symbol": "DC-WZK-1",
+    "supervisor_id": "sup-2",
+    "employment_start": "2020-01-01",
+    "indefinite_employment_date": "2021-01-01",
+    "last_evaluation_date": "2025-02-01",
+    "is_civil_servant": true,
+    "manages_people": true,
+    "is_head_of_office": false,
+    "preparatory_exam_required": false,
+    "job_description_summary": "Kieruje pracą zespołu 8 pracowników, podejmuje decyzje w sytuacjach kryzysowych i incydentach, reprezentuje wydział na spotkaniach."
+  }
+]
+

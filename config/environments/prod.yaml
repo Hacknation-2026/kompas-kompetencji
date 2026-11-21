@@ -1,0 +1,30 @@
+# Production overlay – secrets MUST come from environment variables / secret store.
+app:
+  environment: prod
+  debug: false
+
+server:
+  host: 0.0.0.0
+  reload: false
+  workers: 4
+  cors_origins: []
+
+security:
+  # Placeholder: startup fails validation if not overridden (see Settings validator).
+  jwt_secret: "__override_me__"
+  token_ttl_minutes: 60
+  seed_users_file: null
+
+repository:
+  provider: json_file
+  params:
+    directory: data/runtime/store
+
+notifications:
+  provider: smtp
+  params:
+    host: localhost
+    port: 25
+    sender: kompas@mc.gov.pl
+    use_tls: false
+

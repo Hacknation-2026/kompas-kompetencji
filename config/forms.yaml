@@ -1,0 +1,61 @@
+# =============================================================================
+# Evaluation forms (arkusze) and their criteria.
+# Source: Rozporządzenie PRM z 23.07.2015 (pierwsza ocena, Dz.U. poz. 1144)
+#         Rozporządzenie PRM z 04.04.2016 (oceny okresowe, Dz.U. poz. 470)
+# Criteria ids reference competencies in data/competency_model/model_kompetencji.yaml
+# =============================================================================
+
+forms:
+  first:
+    evaluation_type: first
+    title: "Arkusz pierwszej oceny w służbie cywilnej"
+    legal_basis: "§ 2 i załącznik nr 2 rozporządzenia PRM z 23 lipca 2015 r. (Dz.U. poz. 1144)"
+    scale: first
+    mandatory_criteria:
+      - rzetelnosc
+      - wykorzystywanie_wiedzy
+      - organizacja_pracy
+      - komunikacja
+      - wspolpraca
+    max_additional_criteria: 0
+
+  A:
+    evaluation_type: periodic
+    title: "Arkusz A – kierownik urzędu"
+    legal_basis: "§ 3 ust. 2, § 4 ust. 1 rozporządzenia PRM z 4 kwietnia 2016 r. (Dz.U. poz. 470)"
+    scale: periodic
+    mandatory_criteria:
+      - zarzadzanie_ludzmi
+      - podejmowanie_decyzji
+      - organizacja_pracy
+      - wspolpraca
+      - komunikacja
+      - zarzadzanie_strategiczne
+    max_additional_criteria: 3
+
+  B:
+    evaluation_type: periodic
+    title: "Arkusz B – stanowisko kierownicze (bezpośrednie kierowanie pracownikami)"
+    legal_basis: "§ 3 ust. 3, § 4 ust. 2 rozporządzenia PRM z 4 kwietnia 2016 r. (Dz.U. poz. 470)"
+    scale: periodic
+    mandatory_criteria:
+      - zarzadzanie_ludzmi
+      - podejmowanie_decyzji
+      - organizacja_pracy
+      - wspolpraca
+      - komunikacja
+    max_additional_criteria: 3
+
+  C:
+    evaluation_type: periodic
+    title: "Arkusz C – pozostałe stanowiska"
+    legal_basis: "§ 3 ust. 4, § 4 ust. 3 rozporządzenia PRM z 4 kwietnia 2016 r. (Dz.U. poz. 470)"
+    scale: periodic
+    mandatory_criteria:
+      - wykorzystywanie_wiedzy
+      - rzetelnosc
+      - organizacja_pracy
+      - wspolpraca
+      - komunikacja
+    max_additional_criteria: 3
+

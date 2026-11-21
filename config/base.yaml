@@ -1,0 +1,122 @@
+# =============================================================================
+# Kompas Kompetencji – base configuration
+# -----------------------------------------------------------------------------
+# Load order (later wins):
+#   1. config/base.yaml                         (this file)
+#   2. config/environments/<KOMPAS_ENV>.yaml    (dev | test | prod)
+#   3. config/models/<component>/<profile>.yaml (for sections that declare `profile:`)
+#   4. Environment variables  KOMPAS__SECTION__KEY=value
+#
+# Every pluggable component is described as:
+#   <section>:
+#     provider: <name registered in kompas.core.registry>
+#     params:   {kwargs passed to the provider constructor}
+# Swapping an implementation = changing `provider` (Open/Closed principle).
+# All relative paths are resolved against the project root.
+# =============================================================================
+
+app:
+  name: "Kompas Kompetencji"
+  version: "0.1.0"
+  environment: dev
+  debug: false
+  office_name: "Ministerstwo Cyfryzacji"
+  timezone: "Europe/Warsaw"
+
+server:
+  host: 127.0.0.1
+  port: 8000
+  reload: false
+  workers: 1
+  api_prefix: /api/v1
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5173"
+
+security:
+  jwt_secret: "dev-only-secret-change-me"   # override with KOMPAS__SECURITY__JWT_SECRET
+  jwt_algorithm: HS256
+  token_ttl_minutes: 480
+  password_hash_iterations: 200000
+  # Demo users from data/samples/users.yaml (disable in production!)
+  seed_users_file: data/samples/users.yaml
+
+paths:
+  data_dir: data
+  models_dir: models
+  competency_model_file: data/competency_model/model_kompetencji.yaml
+  workflows_file: config/workflows.yaml
+  forms_file: config/forms.yaml
+  prompts_file: config/prompts.yaml
+  scoring_file: config/scoring.yaml
+
+# ----------------------------------------------------------------------------- persistence
+repository:
+  provider: memory            # memory | json_file
+  params: {}
+
+# Seed data loaded at start-up (fictional employees for demo / tests)
+seed:
+  employees_file: data/samples/employees.json
+  evaluations_file: null
+
+# ----------------------------------------------------------------------------- AI models
+llm:
+  profile: extractive         # -> config/models/llm/extractive.yaml
+
+embeddings:
+  profile: hashing            # -> config/models/embeddings/hashing.yaml
+
+retriever:
+  provider: bm25              # bm25 | embedding | hybrid
+  params:
+    stem_length: 6
+
+assistant:
+  knowledge_base_dir: data/knowledge_base
+  faq_file: data/knowledge_base/faq.yaml
+  index_file: models/index/chunks.json
+  chunk_size: 180             # words
+  chunk_overlap: 40           # words
+  top_k: 4
+  min_relevance: 0.35         # 0..1 – below => assistant says "brak informacji w bazie wiedzy"
+  max_context_chars: 6000
+  guardrails:
+    - rating_decision
+    - personal_data
+
+# ----------------------------------------------------------------------------- scoring
+scoring:
+  indicator_aggregation:
+    provider: mean_nearest    # mean_nearest | median
+    params:
+      tie_break: lower        # lower | higher – conservative default
+      min_coverage: 0.5       # share of indicators that must be assessed for a suggestion
+
+# ----------------------------------------------------------------------------- documents
+documents:
+  provider: pdf               # pdf | html
+  params:
+    font_candidates:
+      - C:/Windows/Fonts/arial.ttf
+      - /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+      - /usr/share/fonts/dejavu/DejaVuSans.ttf
+      - /Library/Fonts/Arial Unicode.ttf
+
+archive:
+  provider: local_folder      # local_folder (EZD adapter stub)
+  params:
+    directory: data/output/archive
+
+# ----------------------------------------------------------------------------- notifications
+notifications:
+  provider: memory            # memory | log | smtp
+  params: {}
+  reminder_lead_days: 7
+
+# ----------------------------------------------------------------------------- integrations
+hr_system:
+  provider: static_file       # static_file (QNT adapter stub)
+  params:
+    path: data/samples/employees.json
+

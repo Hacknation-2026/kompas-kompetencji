@@ -1,0 +1,7 @@
+# Dependency-free feature-hashing embedder (bag of stemmed words -> fixed-size vector).
+# Deterministic and fast; good baseline and used in tests.
+provider: hashing
+params:
+  dimensions: 1024
+  stem_length: 6
+

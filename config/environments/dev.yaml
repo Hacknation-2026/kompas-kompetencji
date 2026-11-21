@@ -1,0 +1,10 @@
+app:
+  environment: dev
+  debug: true
+
+server:
+  reload: true
+
+notifications:
+  provider: log
+
