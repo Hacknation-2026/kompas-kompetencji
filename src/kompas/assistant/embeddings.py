@@ -70,7 +70,7 @@ class HashingEmbeddingModel(EmbeddingModel):
 
 @embedding_registry.register("sentence_transformers")
 class SentenceTransformerEmbeddingModel(EmbeddingModel):
-    """Local neural embeddings via ``sentence-transformers`` (requires ``ml`` extra)."""
+    """Local neural embeddings via ``sentence-transformers`` (lazy-loaded on first ``embed()``)."""
 
     def __init__(
         self,
@@ -79,30 +79,44 @@ class SentenceTransformerEmbeddingModel(EmbeddingModel):
         device: str = "cpu",
         normalize: bool = True,
     ) -> None:
+        self.model_name = model_name
+        self.cache_dir = cache_dir
+        self.device = device
+        self.normalize = normalize
+        self._model: object | None = None
+
+    def _get_model(self) -> object:
+        if self._model is not None:
+            return self._model
+        import os
+
+        cache_path = resolve_path(self.cache_dir)
+        model_slug = f"models--{self.model_name.replace('/', '--')}"
+        has_local_cache = (cache_path / model_slug).is_dir()
+        if has_local_cache:
+            os.environ.setdefault("HF_HUB_OFFLINE", "1")
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as exc:  # pragma: no cover - optional heavy extra
             raise ConfigurationError(
                 "sentence-transformers is not installed. Run `make install-ml`."
             ) from exc
-        cache_path = resolve_path(cache_dir)
-        model_slug = f"models--{model_name.replace('/', '--')}"
-        has_local_cache = (cache_path / model_slug).is_dir()
         try:
             self._model = SentenceTransformer(
-                model_name,
+                self.model_name,
                 cache_folder=str(cache_path),
-                device=device,
+                device=self.device,
                 local_files_only=has_local_cache,
             )
         except Exception:
             self._model = SentenceTransformer(
-                model_name,
+                self.model_name,
                 cache_folder=str(cache_path),
-                device=device,
+                device=self.device,
             )
-        self.normalize = normalize
+        return self._model
 
     def embed(self, texts: Sequence[str]) -> list[list[float]]:  # pragma: no cover - optional heavy extra
-        arr = self._model.encode(list(texts), normalize_embeddings=self.normalize)
+        model = self._get_model()
+        arr = model.encode(list(texts), normalize_embeddings=self.normalize)  # type: ignore[attr-defined]
         return [list(map(float, row)) for row in arr]
