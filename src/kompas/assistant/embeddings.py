@@ -85,9 +85,22 @@ class SentenceTransformerEmbeddingModel(EmbeddingModel):
             raise ConfigurationError(
                 "sentence-transformers is not installed. Run `make install-ml`."
             ) from exc
-        self._model = SentenceTransformer(
-            model_name, cache_folder=str(resolve_path(cache_dir)), device=device
-        )
+        cache_path = resolve_path(cache_dir)
+        model_slug = f"models--{model_name.replace('/', '--')}"
+        has_local_cache = (cache_path / model_slug).is_dir()
+        try:
+            self._model = SentenceTransformer(
+                model_name,
+                cache_folder=str(cache_path),
+                device=device,
+                local_files_only=has_local_cache,
+            )
+        except Exception:
+            self._model = SentenceTransformer(
+                model_name,
+                cache_folder=str(cache_path),
+                device=device,
+            )
         self.normalize = normalize
 
     def embed(self, texts: Sequence[str]) -> list[list[float]]:  # pragma: no cover - optional heavy extra

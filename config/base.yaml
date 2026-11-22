@@ -80,7 +80,7 @@ assistant:
   chunk_overlap: 40           # words
   top_k: 4
   min_relevance: 0.35         # 0..1 – below => assistant says "brak informacji w bazie wiedzy"
-  max_context_chars: 6000
+  max_context_chars: 3500
   guardrails:
     - rating_decision
     - personal_data

@@ -8,5 +8,7 @@ params:
   model: SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M
   temperature: 0.1
   timeout_seconds: 120
-  num_ctx: 8192
+  num_ctx: 4096
+  num_predict: 512
+  keep_alive: "30m"
 

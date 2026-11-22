@@ -749,9 +749,15 @@ $("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const q = $("chat-input").value.trim();
   if (!q) return;
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (submitBtn.disabled) return;
   $("chat-input").value = "";
+  submitBtn.disabled = true;
   const log = $("chat-log");
-  log.innerHTML += `<div class="msg msg-user">${q}</div>`;
+  log.innerHTML += `<div class="msg msg-user">${escapeHtml(q)}</div>`;
+  const pendingId = `msg-pending-${Date.now()}`;
+  log.innerHTML += `<div id="${pendingId}" class="msg msg-ai muted">Asystent analizuje bazę wiedzy...</div>`;
+  log.scrollTop = log.scrollHeight;
   try {
     const resp = await api("/assistant/ask", {
       method: "POST",
@@ -761,16 +767,18 @@ $("chat-form").addEventListener("submit", async (e) => {
         evaluation_id: state.activeEval?.id || null,
       }),
     });
-    const cites = resp.citations.map((c) => `[${c.index}] ${c.source}`).join(" • ");
-    const warns = resp.warnings.length ? `<div class="alert alert-warn">${resp.warnings.join(" ")}</div>` : "";
-    log.innerHTML += `
+    const cites = resp.citations.map((c) => `[${c.index}] ${escapeHtml(c.source)}`).join(" • ");
+    const warns = resp.warnings.length ? `<div class="alert alert-warn">${escapeHtml(resp.warnings.join(" "))}</div>` : "";
+    $(pendingId).outerHTML = `
       <div class="msg msg-ai">
         ${warns}
-        <div>${resp.answer}</div>
+        <div>${escapeHtml(resp.answer)}</div>
         ${cites ? `<div class="citation">Źródła: ${cites}</div>` : ""}
       </div>`;
   } catch (err) {
-    log.innerHTML += `<div class="msg msg-ai alert-error">${err.message}</div>`;
+    $(pendingId).outerHTML = `<div class="msg msg-ai alert-error">${escapeHtml(err.message)}</div>`;
+  } finally {
+    submitBtn.disabled = false;
   }
   log.scrollTop = log.scrollHeight;
 });

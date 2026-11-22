@@ -1,75 +1,86 @@
-# Kompas Kompetencji — Prezentacja projektu (10 slajdów)
+# Kompas Kompetencji — Prezentacja projektu (10 slajdów, HackNation 2026)
+
+> Wersja interaktywna do wyświetlenia przed jury oraz eksportu do PDF (16:9): **`docs/prezentacja.html`**  
+> Skróty klawiszowe w prezentacji: `←` / `→` / `Spacja` (nawigacja), `F` (pełny ekran), `N` (notatki prezentera), `G` (siatka slajdów), `Ctrl+P` (zapis jako PDF).
 
 ---
 
-## Slajd 1: Kompas Kompetencji
-- **Wsparcie przełożonych i HR w ocenianiu pracowników służby cywilnej**
-- Wyzwanie: Ministerstwo Cyfryzacji — Biuro Dyrektora Generalnego (HackNation 2026)
-- Jedno spójne narzędzie łączące: **proces formalny + model kompetencji + AI (RAG)**
+## Slajd 1: Kompas Kompetencji — System wsparcia ocen pracowniczych w służbie cywilnej
+- **Wyzwanie**: Ministerstwo Cyfryzacji — Biuro Dyrektora Generalnego (HackNation 2026).
+- **Wartość**: Jedno spójne narzędzie prowadzące przełożonego krok po kroku przez **proces formalny**, **model kompetencyjny** i **rozmowę oceniającą** — z lokalnym asystentem AI (Bielik + RAG), który doradza, ale **nigdy nie zastępuje decyzji człowieka**.
+- **Filar 1**: Pierwsza ocena (2015) & Ocena okresowa (2016) · **Filar 2**: 14 kompetencji / 49 wskaźników · **Filar 3**: Lokalny Bielik 11B (Apache 2.0) · **Filar 4**: Eksport PDF + Panel HR.
 
 ---
 
-## Slajd 2: Problem — rozproszone przepisy i subiektywność oceny
-- Przełożony musi jednocześnie stosować **ustawę o służbie cywilnej**, **2 rozporządzenia (2015 i 2016)**, **poradniki KPRM** oraz **model kompetencji (14 kompetencji, 49 wskaźników)**.
-- Brak jednego narzędzia prowadzącego krok po kroku powoduje ryzyko błędów formalnych (terminy, wybór arkusza A/B/C) oraz niespójnych interpretacji zachowań.
-- Rozmowy oceniające wymagają merytorycznego przygotowania, a HR potrzebuje bieżącego monitoringu terminów.
+## Slajd 2: Problem — Rozproszone przepisy i subiektywność oceny
+- **Ryzyko formalne**: Przełożony musi jednocześnie stosować ustawę o służbie cywilnej, 2 rozporządzenia (2015 i 2016), poradniki KPRM i reguły terminów z KC (art. 111–115). Błąd w arkuszu (A/B/C) lub terminie (21/30 dni) grozi sprzeciwem.
+- **Subiektywność**: Trudność przełożenia szerokich kompetencji (np. *Komunikacja*, *Myślenie analityczne*) na 49 wskaźników behawioralnych i sprawiedliwą skalę punktową.
+- **Rozmowa i HR**: Brak wsparcia w merytorycznym przygotowaniu rozmowy (IPRZ) oraz brak jednego narzędzia HR do kontroli terminów i przypomnień.
+- **Nasza odpowiedź**: Jedno narzędzie zamiast 5 PDF-ów i rozproszonych arkuszy — od analizy OSP po gotowy PDF.
 
 ---
 
-## Slajd 3: Rozwiązanie — dwie kompletne ścieżki procesu
-1. **Ścieżka 1: Pierwsza ocena** (rozp. z 23.07.2015 r.)
-   - Rozmowa wstępna (21 dni) → Sprawozdanie ocenianego (Zał. nr 3, ≥ 7 mies.) → Ocena 5 elementów (3/5/7 pkt) → Rozmowa → Egzamin i decyzja → Zapoznanie.
-2. **Ścieżka 2: Ocena okresowa** (rozp. z 04.04.2016 r.)
-   - Analiza OSP (`.docx`/`.pdf`) → Dobór arkusza A/B/C i kryteriów (30 dni lub 7 dni przy ponownej ocenie) → Ocena wskaźników (1–9 pkt) → Rozmowa → Wynik (Część II) i wniosek o stopień (Część III) → Pouczenie (7 dni na sprzeciw).
+## Slajd 3: Rozwiązanie — Dwie kompletne ścieżki zgodne z rozporządzeniami
+1. **Ścieżka 1: Pierwsza ocena** (*rozp. PRM z 23.07.2015 r.*, skala **3 / 5 / 7 pkt**)
+   - Rozmowa wstępna (**21 dni**) → Sprawozdanie ocenianego (Zał. nr 3, **≥ 7 mies.**) → Ocena 5 elementów kompetencyjnych (+ STAR) → Rozmowa oceniająca, egzamin ze służby przygotowawczej i wynik → Zapoznanie i PDF.
+2. **Ścieżka 2: Ocena okresowa** (*rozp. PRM z 04.04.2016 r.*, arkusze **A / B / C**, skala **1–9 pkt**)
+   - Analiza OSP (`.docx`/`.pdf`) → Dobór arkusza A/B/C i kryteriów (**30 dni** lub **7 dni** przy ponownej ocenie po 6 mies. — art. 81 ust. 9) → Ocena wskaźników + STAR → Rozmowa → Wynik (Cz. II), Wniosek o kolejny stopień (Cz. III) i Pouczenie (**7 dni** na sprzeciw) → PDF.
+- **Silnik terminów (art. 111–115 KC)**: kalendarz świąt w Polsce oraz przedłużenia przy nieobecnościach (§ 5 rozp. 2015 / art. 81 ust. 8 ustawy).
 
 ---
 
-## Slajd 4: Demo działającego prototypu (Przełożony + HR)
-- Interfejs webowy desktop/tablet (blokada smartfonów `< 768px` zgodnie z wymogiem).
-- Kreator krok po kroku z walidacją wymogów prawnych przed przejściem dalej.
-- Wgranie pliku OSP, przedłużanie terminów (§ 5 / art. 81 ust. 8), eksport gotowego arkusza **PDF/HTML**.
-- Dedykowany **Panel HR** z wykazem terminów i wysyłką przypomnień.
+## Slajd 4: Doświadczenie użytkownika (UX) — Perspektywa Przełożonego i HR
+- **Przełożony (`supervisor`)**:
+  - Kreator krok po kroku z paskiem postępu i walidacją wymogów prawnych przed przejściem dalej.
+  - Upload pliku OSP (`.docx`/`.pdf`), okno terminów i przedłużeń w nagłówku, panel boczny AI (Formalny + Rozmowa), eksport **PDF / HTML**.
+- **Kadry / Administrator (`hr` / `admin`)**:
+  - Dashboard postępów ocen w urzędzie, alerty nadchodzących i zaległych terminów, ręczna i cykliczna wysyłka przypomnień.
+- **Zgodność z ergonomią MC**: interfejs **Desktop & Tablet** ze świadomą blokadą smartfonów (`< 768px`).
 
 ---
 
-## Slajd 5: Model kompetencyjny i pomocnicza sugestia poziomu
-- Wszystkie **14 kompetencji i 49 wskaźników behawioralnych** zaimportowane z oficjalnego arkusza MC.
-- Ocena poprzez wybór **konkretnego, obserwowalnego zachowania** (+ opcja *Brak podstaw* oraz dowód **STAR**).
-- System oblicza **sugerowany poziom** (`MeanNearestStrategy`), ale **ostateczną ocenę cząstkową zawsze wybiera przełożony**.
+## Slajd 5: Model kompetencyjny i pomocnicza sugestia poziomu (Human-in-the-Loop)
+- **14 kompetencji** i **49 wskaźników behawioralnych** zaimportowanych bezpośrednio z oficjalnego arkusza MC.
+- **Krok A (Obserwacja)**: wybór obserwowalnego zachowania (+ opcja *Brak podstaw*) oraz opcjonalny dowód **STAR** (*Sytuacja – Działanie – Rezultat*).
+- **Krok B (Sugestia)**: `MeanNearestStrategy` (min. pokrycie `50%`, konserwatywny `tie_break: lower`) oblicza sugerowany poziom na skali formularza.
+- **Krok C (Decyzja)**: sugestia jest **wyłącznie pomocnicza** — ostateczną ocenę cząstkową zawsze jawnie zatwierdza lub koryguje przełożony.
 
 ---
 
-## Slajd 6: Lokalny, ugruntowany Asystent AI (Bielik + RAG)
-- Polski model open-source **Bielik 11B** (`Apache 2.0`) działający lokalnie przez Ollama — pełna suwerenność danych.
-- **HybridRetriever** (BM25 + `paraphrase-multilingual-MiniLM-L12-v2`) przeszukuje 277 chunków z ustaw, rozporządzeń, poradników KPRM, FAQ i modelu kompetencji.
-- **Dwa tryby wsparcia**:
-  - *Asystent formalny*: odpowiedzi wyłącznie na podstawie źródeł z cytowaniami i odmową przy braku danych.
-  - *Asystent rozmowy*: generowanie pytań otwierających i argumentacji do rozmowy oceniającej.
+## Slajd 6: Lokalny Asystent AI — polski Bielik 11B + Hybrid RAG
+- **Suwerenność danych**: lokalny model open-source **Bielik 11B** (`SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M`, **Apache 2.0**) uruchamiany przez **Ollama** — zero transferu danych poza urząd, 0 zł kosztów licencyjnych.
+- **HybridRetriever**: połączenie **BM25** (`0.65` — precyzja numerów artykułów/paragrafów) + **multilingual embeddings** (`paraphrase-multilingual-MiniLM-L12-v2`) nad **277 chunkami** (ustawa, 2 rozporządzenia, poradniki KPRM, FAQ, model kompetencji).
+- **Dwa tryby pracy**:
+  - *Asystent formalny*: odpowiedzi wyłącznie ze źródeł z cytowaniami; poniżej `min_relevance: 0.35` odmowa bez halucynacji.
+  - *Asystent rozmowy*: spersonalizowany plan rozmowy oceniającej (pytania otwierające, argumentacja, wskazówki do IPRZ).
 
 ---
 
-## Slajd 7: Bezpieczeństwo AI i zgodność prawna (Guardrails)
-- **RatingDecisionGuardrail**: blokuje próby zlecenia AI podjęcia decyzji o ocenie pracownika.
-- **PersonalDataGuardrail**: automatycznie maskuje PESEL, e-mail i telefon przed wysłaniem promptu do LLM.
-- **Zasady prawne w kodzie**: kalendarz świąt i reguły KC (art. 111–115), blokada pozytywnej oceny przy cząstkowej 1 pkt lub niezaliczonym egzaminie, obowiązkowe uzasadnienie oceny negatywnej.
+## Slajd 7: Bezpieczeństwo AI (Guardrails) i deterministyczne reguły prawa
+- **`RatingDecisionGuardrail`**: blokuje próby zlecenia AI wystawienia oceny pracownikowi i przypomina o wyłącznej odpowiedzialności przełożonego.
+- **`PersonalDataGuardrail`**: automatycznie maskuje `PESEL`, `e-mail` i `telefon` **przed** wysłaniem zapytania do LLM oraz w logach aplikacji.
+- **Deterministyczne reguły prawa (`scoring/policies.py`)**: cząstkowa `1 pkt` wymusza wynik negatywny (§ 11 rozp. 2016), brak zdanego egzaminu blokuje pozytywną pierwszą ocenę, ocena negatywna wymaga uzasadnienia.
 
 ---
 
-## Slajd 8: Architektura (SOLID & Config-Driven)
-- **Python / FastAPI / Pydantic v2** z czystym podziałem warstw (`domain`, `workflow`, `scoring`, `assistant`, `services`, `api`).
-- **Open/Closed & DIP**: każdy komponent (LLM, embeddingi, repozytorium, dokumenty, HR, EZD) rejestrowany w `Registry` i sterowany plikami YAML.
-- Testy jednostkowe i integracyjne (`pytest-cov`), kontrola typów (`mypy`) i jakości (`ruff`).
+## Slajd 8: Architektura warstwowa (SOLID & Config-Driven) i Jakość Kodu
+- **Warstwy**: Web SPA (Desktop/Tablet) → FastAPI + Pydantic v2 + RBAC → Serwisy (`AppContainer` DI) → Silniki domenowe (`workflow`, `scoring`, `competency`, `assistant`, `documents`) → Adaptery w `Registry` (YAML).
+- **Zero Vendor Lock-in (OCP/DIP)**: zmiana modelu AI, retrievera czy bazy danych to 1 linia w `config/*.yaml` lub zmiennej środowiskowej (`KOMPAS__LLM__PROFILE=bielik`).
+- **Jakość**: **39 testów** (9 plików unit + integracyjne E2E), bramka pokrycia `≥ 85%` (`pytest-cov`), `mypy` (typowanie), `ruff` (lint), `Dockerfile`, migracje `Alembic`.
 
 ---
 
-## Slajd 9: Gotowość do integracji (EZD RP, QNT, SSO)
-- Zdefiniowane abstrakcje `HRGateway` (QNT), `ArchiveGateway` (EZD RP) i `Repository` (PostgreSQL).
-- Uwierzytelnianie JWT + RBAC (`supervisor`, `hr`, `admin`) gotowe do podpięcia pod OIDC/SAML2 (gov.pl / AD).
-- Minimalizacja danych osobowych i pełny ślad audytowy zmian kroków oraz terminów.
+## Slajd 9: Gotowość produkcyjna i integracje urzędowe (Faza 5 już w kodzie)
+- **Trwałość i bezpieczeństwo**: `SqlAlchemyRepository` (`postgres` / `sqlite`) + migracja Alembic `001_initial_schema.py`; JWT + RBAC + adaptery **SSO (`OIDC` / `SAML2`)**; rate limiting; nagłówki bezpieczeństwa; audyt RODO i polityka retencji.
+- **Kontrakty integracyjne administracji**:
+  - **`QntHrGateway`**: synchronizacja struktury organizacyjnej, podległości, umów i statusu mianowania z **QNT**.
+  - **`EzdRpArchiveGateway`**: automatyczne przekazywanie arkuszy PDF i metadanych do akt osobowych w **EZD RP / EZD PUW**.
+  - **`worker.py` (SMTP TLS)**: cykliczna wysyłka przypomnień o terminach.
 
 ---
 
-## Slajd 10: Plan wdrożenia w Ministerstwie Cyfryzacji
-1. **Faza produkcyjna bazy i bezpieczeństwa**: PostgreSQL + Alembic, SSO (OIDC/SAML2), rate limiting, audyt RODO.
-2. **Integracje urzędowe**: synchronizacja struktury z **QNT**, archiwizacja arkuszy w **EZD RP**, cykliczne powiadomienia SMTP TLS.
-3. **Pilotaż w BDG MC** → skalowanie na kolejne urzędy administracji rządowej.
+## Slajd 10: Plan wdrożenia w MC, skalowanie i Demo na żywo
+1. **Etap 1 (Tygodnie 1–4) — Infrastruktura i audyt w MC**: wdrożenie PostgreSQL + TLS + Vault, podpięcie SSO (AD / gov.pl), serwer GPU dla Bielik 11B, testy bezpieczeństwa i WCAG.
+2. **Etap 2 (Miesiące 2–3) — Integracje i pilotaż w BDG MC**: podłączenie produkcyjnych API **QNT** i **EZD RP**, worker SMTP TLS, pilotaż z przełożonymi i HR.
+3. **Etap 3 (Miesiące 4+) — Skalowanie na służbę cywilną**: udostępnienie kolejnym urzędom administracji rządowej (Config-Driven YAML), analityka luk kompetencyjnych i moduł realizacji IPRZ.
+- **Zapraszamy na 5-minutowe Demo na żywo + Q&A z Bielikiem!**

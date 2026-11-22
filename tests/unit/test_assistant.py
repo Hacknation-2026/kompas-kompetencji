@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from kompas.assistant.embeddings import HashingEmbeddingModel, SentenceTransformerEmbeddingModel
 from kompas.assistant.guardrails import PersonalDataGuardrail, RatingDecisionGuardrail
 from kompas.assistant.knowledge import KnowledgeChunk, chunk_text
+from kompas.assistant.llm import LLMClient
 from kompas.assistant.retriever import BM25Retriever, EmbeddingRetriever, HybridRetriever
 from kompas.container import AppContainer
+from kompas.core.exceptions import ExternalServiceError
 from kompas.domain.enums import AssistantMode, EvaluationType
 
 
@@ -94,3 +98,41 @@ def test_live_hybrid_retriever_with_sentence_transformers() -> None:
     hits = retriever.search("Ile czasu ma pracownik na odwołanie od oceny?", top_k=2)
     assert hits
     assert hits[0].chunk.id == "1"
+
+
+def test_embedding_retriever_caches_vectors_to_disk(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    chunks = [
+        KnowledgeChunk(id="1", source="s1", title="Sprzeciw", text="Sprzeciw wnosi się w terminie 7 dni."),
+    ]
+    cache_file = tmp_path / "emb_cache.json"
+    r1 = EmbeddingRetriever(HashingEmbeddingModel(), cache_file=cache_file)
+    r1.index(chunks)
+    assert cache_file.is_file()
+
+    cached_embedder = HashingEmbeddingModel()
+    monkeypatch.setattr(
+        cached_embedder,
+        "embed",
+        lambda _texts: (_ for _ in ()).throw(AssertionError("Should load vectors from disk cache")),
+    )
+    r2 = EmbeddingRetriever(cached_embedder, cache_file=cache_file)
+    r2.index(chunks)
+    assert r2._vectors == r1._vectors
+    monkeypatch.undo()
+    assert r2.search("sprzeciw", top_k=1)[0].chunk.id == "1"
+
+
+def test_assistant_falls_back_to_extractive_on_llm_timeout(
+    container: AppContainer, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class TimeoutLLM(LLMClient):
+        def generate(self, system_prompt: str, user_prompt: str) -> str:
+            raise ExternalServiceError("Ollama error: timed out")
+
+    monkeypatch.setattr(container.assistant, "llm", TimeoutLLM())
+    resp = container.assistant.ask("W jakim terminie wnosi się sprzeciw od oceny okresowej?")
+    assert resp.grounded is True
+    assert "7 dni" in resp.answer
+    assert any("nie odpowiedział na czas" in w for w in resp.warnings)

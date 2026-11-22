@@ -8,9 +8,11 @@ from pydantic import BaseModel, Field
 
 from kompas.assistant.guardrails import Guardrail
 from kompas.assistant.knowledge import KnowledgeChunk
-from kompas.assistant.llm import LLMClient
+from kompas.assistant.llm import ExtractiveLLMClient, LLMClient
 from kompas.assistant.retriever import Retriever
 from kompas.core.config import read_yaml
+from kompas.core.exceptions import ExternalServiceError
+from kompas.core.logging import get_logger
 from kompas.domain.competency import CompetencyModel
 from kompas.domain.enums import AssistantMode
 from kompas.domain.evaluation import Evaluation
@@ -134,7 +136,15 @@ class AssistantService:
         no_answer = self.prompts.messages["no_answer"]
         system_prompt = self.prompts.system[mode.value].format(no_answer=no_answer)
         user_prompt = self.prompts.user_template.format(context=context, question=query)
-        answer = self.llm.generate(system_prompt, user_prompt)
+        try:
+            answer = self.llm.generate(system_prompt, user_prompt)
+        except ExternalServiceError as exc:
+            get_logger("assistant").warning("Primary LLM failed (%s); falling back to extractive", exc)
+            answer = ExtractiveLLMClient().generate(system_prompt, user_prompt)
+            warnings.append(
+                "Lokalny model LLM nie odpowiedział na czas — "
+                "wyświetlono odpowiedź bezpośrednio z bazy wiedzy."
+            )
         return AssistantResponse(
             mode=mode,
             answer=answer,

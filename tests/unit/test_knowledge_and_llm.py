@@ -22,7 +22,7 @@ from kompas.domain.enums import AssistantMode
 
 def test_dev_environment_uses_bielik_and_hybrid_retriever() -> None:
     cfg = load_settings(environment="dev", environ={})
-    assert cfg.llm.profile == "bielik"
+    assert cfg.llm.profile == "bielik_fast"
     assert cfg.llm.provider == "ollama"
     assert "bielik" in cfg.llm.params["model"].lower()
     assert cfg.retriever.provider == "hybrid"
@@ -116,12 +116,18 @@ def test_build_knowledge_base_script_extracts_and_builds(
 ) -> None:
     materials = tmp_path / "materials"
     materials.mkdir()
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", size=12)
+    pdf.cell(0, 10, "Termin na sprzeciw wynosi 7 dni.")
+    pdf_bytes = bytes(pdf.output())
+
     loose_pdf = materials / "loose.pdf"
-    loose_pdf.write_bytes(b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF")
+    loose_pdf.write_bytes(pdf_bytes)
 
     zip_path = materials / "pack.zip"
     with zipfile.ZipFile(zip_path, "w") as zf:
-        zf.writestr("nested/in_zip.pdf", b"%PDF-1.4\n%%EOF")
+        zf.writestr("nested/in_zip.pdf", pdf_bytes)
         zf.writestr("nested/ignore.txt", b"ignored")
 
     target_dir = tmp_path / "out_pdfs"

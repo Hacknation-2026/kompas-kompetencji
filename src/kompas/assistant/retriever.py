@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
+from pathlib import Path
 
 from kompas.assistant.embeddings import EmbeddingModel, cosine_similarity, tokenize
 from kompas.assistant.knowledge import KnowledgeChunk
+from kompas.core.config import resolve_path
 from kompas.core.registry import Registry
 
 
@@ -87,16 +91,45 @@ class BM25Retriever(Retriever):
 
 @retriever_registry.register("embedding")
 class EmbeddingRetriever(Retriever):
-    """Vector similarity retriever using any :class:`EmbeddingModel`."""
+    """Vector similarity retriever using any :class:`EmbeddingModel` with optional disk cache."""
 
-    def __init__(self, embeddings: EmbeddingModel) -> None:
+    def __init__(self, embeddings: EmbeddingModel, cache_file: str | Path | None = None) -> None:
         self.embeddings = embeddings
+        self.cache_file = resolve_path(cache_file) if cache_file else None
         self._chunks: list[KnowledgeChunk] = []
         self._vectors: list[list[float]] = []
 
+    @staticmethod
+    def _fingerprint(chunks: list[KnowledgeChunk], embeddings: EmbeddingModel) -> str:
+        h = hashlib.sha256()
+        h.update(type(embeddings).__name__.encode("utf-8"))
+        h.update(str(getattr(embeddings, "model_name", "")).encode("utf-8"))
+        for c in chunks:
+            h.update(c.id.encode("utf-8"))
+            h.update(str(len(c.text)).encode("utf-8"))
+        return h.hexdigest()[:16]
+
     def index(self, chunks: list[KnowledgeChunk]) -> None:
         self._chunks = list(chunks)
-        self._vectors = self.embeddings.embed([f"{c.title} {c.text}" for c in self._chunks]) if chunks else []
+        if not chunks:
+            self._vectors = []
+            return
+        fp = self._fingerprint(self._chunks, self.embeddings)
+        if self.cache_file and self.cache_file.is_file():
+            try:
+                cached = json.loads(self.cache_file.read_text(encoding="utf-8"))
+                if cached.get("fingerprint") == fp and len(cached.get("vectors", [])) == len(chunks):
+                    self._vectors = cached["vectors"]
+                    return
+            except (OSError, ValueError):
+                pass
+        self._vectors = self.embeddings.embed([f"{c.title} {c.text}" for c in self._chunks])
+        if self.cache_file:
+            self.cache_file.parent.mkdir(parents=True, exist_ok=True)
+            self.cache_file.write_text(
+                json.dumps({"fingerprint": fp, "vectors": self._vectors}),
+                encoding="utf-8",
+            )
 
     def search(self, query: str, top_k: int = 4) -> list[RetrievedChunk]:
         if not self._chunks:
@@ -115,9 +148,15 @@ class EmbeddingRetriever(Retriever):
 class HybridRetriever(Retriever):
     """Weighted combination of BM25 and dense embedding similarity."""
 
-    def __init__(self, embeddings: EmbeddingModel, bm25_weight: float = 0.65, stem_length: int = 6) -> None:
+    def __init__(
+        self,
+        embeddings: EmbeddingModel,
+        bm25_weight: float = 0.65,
+        stem_length: int = 6,
+        cache_file: str | Path | None = None,
+    ) -> None:
         self.bm25 = BM25Retriever(stem_length=stem_length)
-        self.dense = EmbeddingRetriever(embeddings=embeddings)
+        self.dense = EmbeddingRetriever(embeddings=embeddings, cache_file=cache_file)
         self.bm25_weight = bm25_weight
 
     def index(self, chunks: list[KnowledgeChunk]) -> None:

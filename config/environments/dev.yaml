@@ -9,13 +9,14 @@ server:
   reload: true
 
 llm:
-  profile: bielik
+  profile: bielik_fast
 
 retriever:
   provider: hybrid
   params:
     bm25_weight: 0.65
     stem_length: 6
+    cache_file: models/index/embeddings_cache.json
 
 notifications:
   provider: log

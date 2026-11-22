@@ -67,19 +67,28 @@ class OllamaLLMClient(LLMClient):
         model: str = "qwen2.5:7b-instruct",
         temperature: float = 0.1,
         timeout_seconds: float = 120.0,
-        num_ctx: int = 8192,
+        num_ctx: int = 4096,
+        num_predict: int = 512,
+        keep_alive: str = "30m",
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.temperature = temperature
         self.timeout_seconds = timeout_seconds
         self.num_ctx = num_ctx
+        self.num_predict = num_predict
+        self.keep_alive = keep_alive
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         payload = {
             "model": self.model,
             "stream": False,
-            "options": {"temperature": self.temperature, "num_ctx": self.num_ctx},
+            "keep_alive": self.keep_alive,
+            "options": {
+                "temperature": self.temperature,
+                "num_ctx": self.num_ctx,
+                "num_predict": self.num_predict,
+            },
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -93,6 +102,11 @@ class OllamaLLMClient(LLMClient):
             raise ExternalServiceError(
                 f"Nie można połączyć z lokalnym serwerem Ollama ({self.base_url}). "
                 f"Uruchom `ollama serve` i pobierz model (`ollama pull {self.model}`)."
+            ) from exc
+        except httpx.TimeoutException as exc:
+            raise ExternalServiceError(
+                f"Przekroczono limit czasu oczekiwania na odpowiedź modelu {self.model} "
+                f"({self.timeout_seconds}s). Rozważ użycie lżejszego modelu (np. profile: bielik_fast)."
             ) from exc
         except (httpx.HTTPError, KeyError) as exc:
             raise ExternalServiceError(f"Ollama error: {exc}") from exc
