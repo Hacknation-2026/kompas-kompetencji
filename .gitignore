@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+PLAN.MD
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+docs/coverage/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Runtime data produced by the application
+data/runtime/
+data/output/
+data/knowledge_base/pdfs/
+
+# Model weights & generated indexes (kept out of git; see models/README.md)
+models/**/*
+!models/README.md
+!models/.gitkeep
+!models/*/
+!models/*/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+

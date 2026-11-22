@@ -1,0 +1,12 @@
+# Local open-source model served by Ollama (https://ollama.com) – data never leaves the machine.
+#   ollama pull qwen2.5:7b-instruct   (or: llama3.1:8b, mistral-nemo, bielik)
+provider: ollama
+params:
+  base_url: http://localhost:11434
+  model: qwen2.5:7b-instruct
+  temperature: 0.1
+  timeout_seconds: 90
+  num_ctx: 4096
+  num_predict: 512
+  keep_alive: "30m"
+

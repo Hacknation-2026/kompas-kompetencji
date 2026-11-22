@@ -1,0 +1,111 @@
+# =============================================================================
+# Step-by-step evaluation paths.
+#   deadline.anchor  – key from evaluation anchors (see kompas.workflow.deadlines)
+#   deadline.offset  – {days: N} | {months: N}   (months follow art. 112 KC)
+#   deadline.kind    – due (latest date) | not_before (earliest date)
+#   requires         – checks registered in kompas.workflow.requirements
+# =============================================================================
+
+paths:
+  first:
+    title: "Pierwsza ocena w służbie cywilnej"
+    # Anchors derived when not provided explicitly
+    derived_anchors:
+      contract_end: { anchor: employment_start, offset: { months: 12 } }
+    steps:
+      - id: initial_interview
+        title: "Rozpocznij ocenę – rozmowa wstępna"
+        description: >-
+          Zapoznaj ocenianego ze sposobem dokonywania oceny, omów obowiązki z opisu stanowiska,
+          oczekiwania wobec elementów oceny i wyznacz termin złożenia sprawozdania.
+        legal_basis: "§ 3 i § 4 rozporządzenia z 23.07.2015 r."
+        deadline: { anchor: employment_start, offset: { days: 21 }, kind: due }
+
+      - id: report
+        title: "Sprawozdanie ocenianego"
+        description: >-
+          Odnotuj złożenie sprawozdania (okres nie krótszy niż 7 miesięcy) i czy nastąpiło w terminie.
+        legal_basis: "§ 4 ust. 1, § 6 rozporządzenia z 23.07.2015 r."
+        deadline: { anchor: employment_start, offset: { months: 8 }, kind: not_before }
+        requires: [report_status_recorded]
+
+      - id: competency_assessment
+        title: "Ocena elementów z zastosowaniem modelu kompetencji"
+        description: >-
+          Dla każdego z 5 elementów wybierz zachowania najlepiej opisujące obserwacje. System zasugeruje
+          poziom – ostateczną ocenę cząstkową (3/5/7 pkt) wybierasz Ty.
+        legal_basis: "§ 7 pkt 2, § 9 rozporządzenia z 23.07.2015 r."
+        requires: [all_criteria_decided]
+
+      - id: evaluation_interview
+        title: "Rozmowa oceniająca"
+        description: >-
+          Omów postawę, zaangażowanie, postępy, relacje i terminowość, wynik egzaminu oraz sprawozdanie.
+          Skorzystaj z Asystenta rozmowy.
+        legal_basis: "§ 7 pkt 1, § 8 rozporządzenia z 23.07.2015 r."
+
+      - id: decision
+        title: "Zakończ ocenę – przyznanie pierwszej oceny"
+        description: >-
+          Oblicz ocenę łączną, przyznaj ocenę pozytywną/negatywną; przy negatywnej uzasadnienie jest obowiązkowe.
+        legal_basis: "§ 7 pkt 3–4, § 10 rozporządzenia z 23.07.2015 r.; art. 38 ust. 1 ustawy"
+        deadline: { anchor: contract_end, offset: { months: -1 }, kind: due }
+        requires: [exam_status_recorded, outcome_computed, justification_if_negative]
+
+      - id: acknowledgement
+        title: "Zapoznanie ocenianego z oceną"
+        description: "Niezwłocznie umożliwij ocenianemu zapoznanie się z oceną; arkusz trafia do akt osobowych."
+        legal_basis: "§ 11 rozporządzenia z 23.07.2015 r."
+
+  periodic:
+    title: "Ocena okresowa w służbie cywilnej"
+    derived_anchors:
+      evaluation_due: { anchor: period_anchor, offset: { months: 24 } }
+    steps:
+      - id: job_description_analysis
+        title: "Analiza opisu stanowiska pracy"
+        description: >-
+          Przeanalizuj opis stanowiska (OSP): główne obowiązki, czy stanowisko jest kierownicze –
+          to determinuje arkusz A/B/C i podpowiada kryteria dodatkowe.
+        legal_basis: "§ 2 ust. 1, § 3 rozporządzenia z 04.04.2016 r."
+        requires: [form_selected]
+
+      - id: criteria_setting
+        title: "Rozpocznij ocenę – ustalenie kryteriów (część I arkusza)"
+        description: >-
+          Przeprowadź rozmowę: obowiązki, kryteria obowiązkowe i maks. 3 dodatkowe, oczekiwania, ewentualne cele.
+          Oceniany potwierdza podpisem zapoznanie z kryteriami i terminem oceny.
+        legal_basis: "§ 5–7 rozporządzenia z 04.04.2016 r."
+        deadline: { anchor: period_anchor, offset: { days: 30 }, kind: due }
+        requires: [criteria_confirmed]
+
+      - id: competency_assessment
+        title: "Ocena kryteriów z zastosowaniem modelu kompetencji"
+        description: >-
+          Dla każdego kryterium oceń wskaźniki behawioralne; system podpowie poziom (1–9 pkt).
+          Ostateczna ocena cząstkowa należy do oceniającego.
+        legal_basis: "§ 11 ust. 1 pkt 1 rozporządzenia z 04.04.2016 r."
+        requires: [all_criteria_decided]
+
+      - id: evaluation_interview
+        title: "Rozmowa oceniająca"
+        description: >-
+          Omów realizację obowiązków i kryteriów, cele (jeśli wyznaczono) oraz kierunki rozwoju zawodowego.
+        legal_basis: "§ 10 rozporządzenia z 04.04.2016 r."
+        deadline: { anchor: evaluation_due, offset: { days: 0 }, kind: due }
+
+      - id: decision
+        title: "Zakończ ocenę – sporządzenie oceny na piśmie (część II)"
+        description: >-
+          Średnia arytmetyczna, ogólny poziom, ocena pozytywna/negatywna, wnioski do IPRZ;
+          przy ocenie negatywnej uzasadnienie obowiązkowe.
+        legal_basis: "§ 11 rozporządzenia z 04.04.2016 r.; art. 81 ustawy o służbie cywilnej"
+        deadline: { anchor: evaluation_due, offset: { days: 0 }, kind: due }
+        requires: [outcome_computed, justification_if_negative, development_plan_present]
+
+      - id: acknowledgement
+        title: "Zapoznanie z oceną i pouczenie o sprzeciwie"
+        description: >-
+          Niezwłocznie zapoznaj ocenianego z oceną; sprzeciw do dyrektora generalnego przysługuje w terminie 7 dni.
+        legal_basis: "§ 12 rozporządzenia z 04.04.2016 r.; art. 83 ust. 1 ustawy o służbie cywilnej"
+

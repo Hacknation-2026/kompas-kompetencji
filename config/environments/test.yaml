@@ -1,0 +1,28 @@
+# Deterministic, offline configuration used by the test-suite.
+app:
+  environment: test
+  debug: true
+
+security:
+  jwt_secret: "test-secret-with-enough-length-for-hs256"
+  password_hash_iterations: 1000   # fast hashing in tests
+
+repository:
+  provider: memory
+
+llm:
+  profile: extractive
+
+embeddings:
+  profile: hashing
+
+documents:
+  provider: pdf
+
+archive:
+  params:
+    directory: data/runtime/test-archive
+
+notifications:
+  provider: memory
+

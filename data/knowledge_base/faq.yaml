@@ -1,0 +1,68 @@
+faq:
+  - topic: pierwsza_ocena
+    source: "Rozporządzenie PRM z 23 lipca 2015 r. (Dz.U. poz. 1144), § 3–4"
+    question: "Kiedy należy przeprowadzić rozmowę wstępną przy pierwszej ocenie w służbie cywilnej?"
+    answer: >-
+      Bezpośredni przełożony przeprowadza rozmowę wstępną w terminie 21 dni od dnia nawiązania stosunku pracy
+      (albo od dnia ustalenia, że pracownik zatrudniony na zastępstwo podlega pierwszej ocenie). Podczas rozmowy
+      omawia się sposób dokonywania oceny, główne obowiązki z opisu stanowiska, oczekiwania wobec elementów oceny
+      oraz wyznacza termin na złożenie sprawozdania.
+
+  - topic: pierwsza_ocena
+    source: "Rozporządzenie PRM z 23 lipca 2015 r. (Dz.U. poz. 1144), § 4 ust. 1, § 6, art. 38 ustawy"
+    question: "Kiedy pracownik składa sprawozdanie i kiedy dokonuje się pierwszej oceny?"
+    answer: >-
+      Sprawozdanie obejmuje okres nie krótszy niż 7 miesięcy, a termin na jego złożenie wyznacza się tak,
+      aby przypadał po upływie 8 miesięcy od nawiązania stosunku pracy. Pierwszej oceny dokonuje się nie wcześniej
+      niż po upływie 8 miesięcy od nawiązania stosunku pracy i nie później niż miesiąc przed upływem okresu,
+      na który zawarto umowę o pracę (zwykle 12 miesięcy).
+
+  - topic: pierwsza_ocena
+    source: "Rozporządzenie PRM z 23 lipca 2015 r. (Dz.U. poz. 1144), § 2, § 9–10"
+    question: "Jakie są warunki przyznania pozytywnej pierwszej oceny w służbie cywilnej?"
+    answer: >-
+      Pozytywną pierwszą ocenę przyznaje się, gdy oceniany łącznie: (1) zaliczył egzamin ze służby
+      przygotowawczej (jeśli był obowiązany), (2) złożył sprawozdanie w wyznaczonym terminie, (3) uzyskał
+      nie więcej niż jedną ocenę cząstkową w wysokości 3 punktów (poniżej oczekiwań), oraz (4) uzyskał ocenę
+      łączną (średnią arytmetyczną) nie niższą niż 5 punktów. Skala ocen cząstkowych to 3, 5 lub 7 punktów.
+
+  - topic: ocena_okresowa
+    source: "Rozporządzenie PRM z 4 kwietnia 2016 r. (Dz.U. poz. 470), § 3–4"
+    question: "Który arkusz oceny okresowej należy wybrać (A, B czy C)?"
+    answer: >-
+      Arkusz A służy do oceny kierownika urzędu będącego stanowiskiem pracy w służbie cywilnej.
+      Arkusz B służy do oceny osoby na stanowisku, na którym praca polega na bezpośrednim kierowaniu
+      pracownikami (innym niż kierownik urzędu). Arkusz C służy do oceny na pozostałych stanowiskach pracy.
+
+  - topic: ocena_okresowa
+    source: "Rozporządzenie PRM z 4 kwietnia 2016 r. (Dz.U. poz. 470), § 5 ust. 2"
+    question: "Ile kryteriów dodatkowych można wybrać w ocenie okresowej?"
+    answer: >-
+      Oceniający może wybrać z wykazu kryteriów oceny nie więcej niż 3 kryteria dodatkowe, najistotniejsze
+      ze względu na charakter obowiązków wynikających z opisu stanowiska pracy zajmowanego przez ocenianego.
+
+  - topic: ocena_okresowa
+    source: "Rozporządzenie PRM z 4 kwietnia 2016 r. (Dz.U. poz. 470), § 7 i art. 81 ustawy"
+    question: "Co ile miesięcy sporządza się ocenę okresową i kiedy ustala się kryteria?"
+    answer: >-
+      Ocenę okresową sporządza się co 24 miesiące od poprzedniej oceny albo od zatrudnienia na czas
+      nieokreślony. Rozmowę wstępną i zapoznanie z kryteriami oceny przeprowadza się w terminie 30 dni
+      od sporządzenia poprzedniej oceny lub zatrudnienia na czas nieokreślony (a w terminie 7 dni po ocenie negatywnej).
+
+  - topic: ocena_okresowa
+    source: "Rozporządzenie PRM z 4 kwietnia 2016 r. (Dz.U. poz. 470), § 11"
+    question: "Jak oblicza się wynik oceny okresowej i kiedy ocena jest pozytywna lub negatywna?"
+    answer: >-
+      Oceny cząstkowe przyznaje się w skali 1, 3, 5, 7 lub 9 punktów. Ogólny poziom spełniania kryteriów
+      ustala się ze średniej arytmetycznej ocen cząstkowych: 1–2 pkt (znacznie poniżej oczekiwań), pow. 2–4 pkt
+      (poniżej oczekiwań), pow. 4–6 pkt (na poziomie oczekiwań), pow. 6–8 pkt (powyżej oczekiwań), pow. 8–9 pkt
+      (znacznie powyżej oczekiwań). Ocenę pozytywną przyznaje się od poziomu „na poziomie oczekiwań” wzwyż,
+      pod warunkiem nieuzyskania żadnej oceny cząstkowej „znacznie poniżej oczekiwań” (1 pkt).
+
+  - topic: sprzeciw
+    source: "Ustawa o służbie cywilnej, art. 83 ust. 1"
+    question: "W jakim terminie oceniany może wnieść sprzeciw od oceny okresowej?"
+    answer: >-
+      Od oceny okresowej przysługuje sprzeciw do dyrektora generalnego urzędu w terminie 7 dni od dnia
+      zapoznania się z oceną.
+

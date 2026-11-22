@@ -1,0 +1,12 @@
+# Fast local Polish LLM: Bielik 4.5B v3.0 (SpeakLeash, Apache 2.0).
+# ~3x faster and ~2.5x lighter than Bielik 11B; runs smoothly on CPU or 4-6 GB VRAM:
+#   ollama pull hf.co/speakleash/Bielik-4.5B-v3.0-Instruct-GGUF
+provider: ollama
+params:
+  base_url: http://localhost:11434
+  model: hf.co/speakleash/Bielik-4.5B-v3.0-Instruct-GGUF
+  temperature: 0.1
+  timeout_seconds: 90
+  num_ctx: 4096
+  num_predict: 512
+  keep_alive: "30m"

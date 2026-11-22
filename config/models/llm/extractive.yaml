@@ -1,0 +1,7 @@
+# Offline, deterministic "LLM": composes answers from the retrieved knowledge-base
+# fragments (no network, no API key). Default for demo without internet and for tests.
+provider: extractive
+params:
+  max_sentences: 4
+  min_sentence_chars: 25
+

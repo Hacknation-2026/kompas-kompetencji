@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kompas Kompetencji – Służba Cywilna</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="mobile-block" class="mobile-block" aria-live="polite">
+    <div class="mobile-card">
+      <h2>Kompas Kompetencji</h2>
+      <p>Aplikacja jest przeznaczona wyłącznie do pracy na komputerze lub tablecie (zgodnie z założeniami systemu nie jest dostępna na smartfonach).</p>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">🧭</span>
+      <div>
+        <div class="brand-title">Kompas Kompetencji</div>
+        <div class="brand-sub">Ministerstwo Cyfryzacji • Wsparcie pierwszej oceny i oceny okresowej w służbie cywilnej</div>
+      </div>
+    </div>
+    <div class="topbar-actions" id="user-bar" hidden>
+      <button class="btn btn-ghost" id="btn-home">Ścieżki oceny</button>
+      <button class="btn btn-ghost" id="btn-hr" hidden>Panel HR / Monitoring</button>
+      <span class="user-pill" id="user-pill"></span>
+      <button class="btn btn-outline" id="btn-logout">Wyloguj</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <!-- LOGIN VIEW -->
+    <section id="view-login" class="login-wrap">
+      <div class="card login-card">
+        <h1>Logowanie do systemu</h1>
+        <p class="muted">Zaloguj się jako przełożony (oceniający) lub pracownik kadr (HR).</p>
+        <form id="login-form">
+          <label>Nazwa użytkownika
+            <input type="text" id="login-username" value="przelozony" required />
+          </label>
+          <label>Hasło
+            <input type="password" id="login-password" value="demo-password-1" required />
+          </label>
+          <button type="submit" class="btn btn-primary btn-full">Zaloguj</button>
+        </form>
+        <div class="demo-accounts">
+          <div class="muted small">Szybkie logowanie demo:</div>
+          <div class="chip-row">
+            <button type="button" class="chip" data-user="przelozony" data-pass="demo-password-1">Przełożony (Anna K.)</button>
+            <button type="button" class="chip" data-user="przelozony2" data-pass="demo-password-2">Przełożony 2 (Marek N.)</button>
+            <button type="button" class="chip" data-user="kadry" data-pass="demo-password-hr">Kadry / HR</button>
+          </div>
+        </div>
+        <div id="login-error" class="alert alert-error" hidden></div>
+      </div>
+    </section>
+
+    <!-- MAIN WORKSPACE (2-COLUMN: CONTENT + AI ASSISTANT) -->
+    <section id="view-workspace" class="workspace" hidden>
+      <div class="workspace-main">
+        <!-- HOME / PATHS -->
+        <div id="panel-home">
+          <div id="home-alert" class="alert alert-error" hidden></div>
+          <div class="paths-grid">
+            <div class="card path-card path-first">
+              <div class="path-badge badge-blue">Ścieżka 1</div>
+              <h2>Pierwsza ocena w służbie cywilnej</h2>
+              <p class="muted">Dla pracowników podejmujących pracę po raz pierwszy (rozporządzenie z 23.07.2015 r.). 5 elementów oceny w skali 3 / 5 / 7 pkt.</p>
+              <div class="field-row">
+                <select id="select-emp-first"></select>
+                <button class="btn btn-primary" id="btn-start-first">Rozpocznij ocenę</button>
+              </div>
+            </div>
+
+            <div class="card path-card path-periodic">
+              <div class="path-badge badge-purple">Ścieżka 2</div>
+              <h2>Ocena okresowa w służbie cywilnej</h2>
+              <p class="muted">Dla mianowanych urzędników i pracowników na czas nieokreślony (rozporządzenie z 04.04.2016 r.). Formularze A / B / C w skali 1–9 pkt.</p>
+              <div class="field-col" style="margin-top: 12px;">
+                <select id="select-emp-periodic"></select>
+                <div class="field-row" style="margin-top: 8px;">
+                  <select id="select-form-periodic" title="Wybór formularza (opcjonalne nadpisanie)">
+                    <option value="">Dobór automatyczny (wg stanowiska)</option>
+                    <option value="A">Arkusz A (kierownik urzędu)</option>
+                    <option value="B">Arkusz B (stanowisko kierownicze)</option>
+                    <option value="C">Arkusz C (stanowisko niebędące kierowniczym)</option>
+                  </select>
+                  <button class="btn btn-purple" id="btn-start-periodic">Rozpocznij ocenę</button>
+                </div>
+                <label class="inline-check">
+                  <input type="checkbox" id="chk-post-negative" />
+                  Ponowna ocena po ocenie negatywnej (6 mies. / 7 dni)
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Aktywne i zakończone oceny</h3>
+            <div id="evaluations-list" class="eval-list"></div>
+          </div>
+        </div>
+
+        <!-- EVALUATION WIZARD -->
+        <div id="panel-wizard" hidden>
+          <div class="wizard-header card">
+            <div>
+              <div class="muted small" id="wiz-meta"></div>
+              <h2 id="wiz-title"></h2>
+            </div>
+            <div class="wizard-header-actions">
+              <button class="btn btn-outline" id="btn-toggle-deadlines">Terminy i przedłużenie</button>
+              <button class="btn btn-outline" id="btn-back-home">← Lista ocen</button>
+            </div>
+          </div>
+
+          <div id="wiz-deadlines-panel" class="card" hidden></div>
+          <div id="wiz-stepper" class="stepper"></div>
+          <div id="wiz-alert" class="alert" hidden></div>
+          <div id="wiz-body" class="card"></div>
+        </div>
+
+        <!-- HR MONITORING -->
+        <div id="panel-hr" hidden>
+          <div class="card">
+            <div class="row-between">
+              <div>
+                <h2>Panel HR / Administratora</h2>
+                <p class="muted">Monitorowanie postępu ocen, terminów ustawowych oraz wysyłka przypomnień.</p>
+              </div>
+              <button class="btn btn-primary" id="btn-send-reminders">Wyślij przypomnienia</button>
+            </div>
+            <div id="hr-stats" class="stats-grid"></div>
+            <div id="hr-reminder-status" class="alert alert-ok" hidden></div>
+            <h3>Nadchodzące i zaległe terminy</h3>
+            <div id="hr-deadlines"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI ASSISTANT DRAWER -->
+      <aside class="assistant-drawer card">
+        <div class="tabs">
+          <button class="tab active" data-tab="formal">Asystent formalny</button>
+          <button class="tab" data-tab="conversation">Asystent rozmowy</button>
+        </div>
+
+        <div id="tab-formal" class="tab-body">
+          <p class="muted small">Odpowiada wyłącznie na podstawie bazy wiedzy (ustawa, rozporządzenia, poradniki KPRM, model kompetencji). Nie podejmuje decyzji o ocenie.</p>
+          <div class="chip-row">
+            <button type="button" class="chip qa-sample" data-q="W jakim terminie wnosi się sprzeciw od oceny okresowej?">Termin na sprzeciw</button>
+            <button type="button" class="chip qa-sample" data-q="Kiedy należy przeprowadzić rozmowę wstępną przy pierwszej ocenie?">Rozmowa wstępna</button>
+            <button type="button" class="chip qa-sample" data-q="Jakie są warunki przyznania pozytywnej pierwszej oceny?">Pozytywna 1. ocena</button>
+          </div>
+          <div id="chat-log" class="chat-log"></div>
+          <form id="chat-form" class="chat-form">
+            <textarea id="chat-input" rows="2" placeholder="Zadaj pytanie o przepisy, terminy lub kryteria..." required></textarea>
+            <button type="submit" class="btn btn-primary btn-full">Zapytaj asystenta</button>
+          </form>
+        </div>
+
+        <div id="tab-conversation" class="tab-body" hidden>
+          <p class="muted small">Wsparcie w przygotowaniu rozmowy oceniającej, pytań otwartych i wniosków do IPRZ.</p>
+          <button class="btn btn-purple btn-full" id="btn-load-prep">Przygotuj plan rozmowy dla bieżącej oceny</button>
+          <div id="prep-output" class="prep-output"></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

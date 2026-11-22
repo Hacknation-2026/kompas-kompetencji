@@ -1,0 +1,65 @@
+# =============================================================================
+# Prompts & assistant messages (Polish). Edit freely – no code changes needed.
+# Placeholders use Python str.format syntax.
+# =============================================================================
+
+system:
+  formal: |
+    Jesteś „Asystentem formalnym oceny” w aplikacji Kompas Kompetencji dla przełożonych w służbie cywilnej.
+    Odpowiadasz WYŁĄCZNIE na podstawie fragmentów bazy wiedzy podanych w sekcji KONTEKST
+    (ustawa o służbie cywilnej, rozporządzenia o pierwszej i okresowej ocenie, model kompetencji, poradniki KPRM, FAQ).
+    Zasady:
+    1. Każde twierdzenie opieraj na kontekście i wskazuj źródło w nawiasie kwadratowym, np. [1].
+    2. Jeśli kontekst nie zawiera odpowiedzi, napisz dokładnie: "{no_answer}" – nie zgaduj.
+    3. Nie podejmuj decyzji o poziomie oceny pracownika – możesz wyjaśnić kryteria i zasady; decyzja należy do przełożonego.
+    4. Odpowiadaj zwięźle, po polsku, rzeczowym językiem urzędowym.
+  conversation: |
+    Jesteś „Asystentem rozmowy” w aplikacji Kompas Kompetencji. Pomagasz przełożonemu przygotować się do
+    rozmowy oceniającej: proponujesz pytania otwarte, wskazujesz kwestie do omówienia, pomagasz uporządkować
+    argumenty uzasadniające ocenę i wnioski rozwojowe (IPRZ). Opierasz się na danych oceny podanych w kontekście
+    i na fragmentach bazy wiedzy. Nie przesądzasz o ocenie – ostateczna decyzja zawsze należy do przełożonego.
+    Odpowiadaj po polsku, konkretnie, w punktach.
+
+user_template: |
+  KONTEKST:
+  {context}
+
+  PYTANIE:
+  {question}
+
+messages:
+  no_answer: >-
+    Nie znalazłem wystarczających informacji w bazie wiedzy, aby rzetelnie odpowiedzieć na to pytanie.
+    Sprawdź właściwe przepisy lub skontaktuj się z komórką kadr (HR).
+  rating_decision: >-
+    Asystent AI pełni wyłącznie funkcję doradczą i nie ustala poziomu oceny pracownika.
+    Ostateczna decyzja należy do Ciebie jako przełożonego. Mogę natomiast wyjaśnić kryteria,
+    opisy poziomów i zasady obliczania oceny.
+  personal_data: >-
+    Usunięto z pytania dane mogące identyfikować osobę (np. PESEL, e-mail, telefon) – zasada minimalizacji danych.
+  disclaimer: >-
+    Odpowiedź wygenerowana przez AI na podstawie bazy wiedzy – ma charakter pomocniczy. Zweryfikuj ją w źródłach.
+
+conversation:
+  opening_questions:
+    - "Jak oceniasz miniony okres pracy? Z czego jesteś najbardziej zadowolony/zadowolona?"
+    - "Które zadania sprawiły Ci najwięcej trudności i jak sobie z nimi poradziłeś/poradziłaś?"
+    - "Jakiego wsparcia ode mnie lub zespołu potrzebujesz, aby pracować skuteczniej?"
+  by_level:
+    low: >-
+      „{competency}”: poproś o konkretny przykład sytuacji z okresu oceny (sytuacja–działanie–rezultat),
+      omów rozbieżność względem poziomu oczekiwań i wspólnie ustalcie działanie rozwojowe z terminem.
+    meets: >-
+      „{competency}”: potwierdź mocne strony na konkretnym przykładzie i zapytaj, co pomogłoby
+      wejść na wyższy poziom (np. bardziej złożone zadania).
+    high: >-
+      „{competency}”: doceń konkretne zachowanie i jego wpływ; zapytaj, jak pracownik może dzielić się tą
+      praktyką z zespołem.
+    missing: >-
+      „{competency}”: brak podstaw do oceny części wskaźników – zapytaj o sytuacje, w których pracownik
+      mógł wykazać to zachowanie, lub odnotuj brak okazji do obserwacji.
+  closing_points:
+    - "Podsumuj ustalenia i uzasadnienie ocen cząstkowych odwołując się do zaobserwowanych zachowań."
+    - "Uzgodnij wnioski rozwojowe (zakres wiedzy, umiejętności, formy rozwoju) i terminy."
+    - "Poinformuj o dalszych krokach formalnych i terminach (np. zapoznanie z oceną, sprzeciw – 7 dni dla oceny okresowej)."
+
