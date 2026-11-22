@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kompas Kompetencji — Prezentacja HackNation 2026 (Ministerstwo Cyfryzacji)</title>
+  <style>
+    :root {
+      --navy: #0b2545;
+      --navy-deep: #071930;
+      --blue: #1d5fa7;
+      --blue-light: #e8f1fb;
+      --purple: #60399e;
+      --purple-light: #f2ecfa;
+      --crimson: #d4213d;
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --border: #d9e2ec;
+      --text: #102a43;
+      --muted: #486581;
+      --ok-bg: #e6f4ea;
+      --ok-fg: #0e6027;
+      --warn-bg: #fff8e1;
+      --warn-fg: #8a5300;
+      --err-bg: #fdecea;
+      --err-fg: #a2191f;
+      --radius: 14px;
+      --shadow: 0 8px 24px rgba(11, 37, 69, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #0d1520;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Stage container */
+    .stage {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 16px;
+    }
+
+    .deck {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      transform-origin: center center;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 1280px;
+      height: 720px;
+      padding: 46px 56px 54px;
+      display: none;
+      flex-direction: column;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .slide.active {
+      display: flex;
+      animation: fadeIn 0.22s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top accent bar on content slides */
+    .slide::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--navy) 0%, var(--blue) 70%, var(--crimson) 100%);
+    }
+
+    /* Cover slide */
+    .slide.cover {
+      background: radial-gradient(circle at 85% 20%, #1d5fa7 0%, #0b2545 55%, #071930 100%);
+      color: #ffffff;
+      padding: 56px 68px;
+      justify-content: space-between;
+    }
+    .slide.cover::before {
+      height: 8px;
+      background: linear-gradient(90deg, #ffffff 0%, #ffffff 50%, var(--crimson) 50%, var(--crimson) 100%);
+    }
+
+    /* Slide Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      gap: 20px;
+    }
+    .kicker {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    h1 {
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+    h2 {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.18;
+      color: var(--navy);
+      letter-spacing: -0.015em;
+    }
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .header-badge {
+      background: var(--navy);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      letter-spacing: 0.03em;
+    }
+    .header-badge.purple { background: var(--purple); }
+    .header-badge.blue { background: var(--blue); }
+    .header-badge.ok { background: var(--ok-fg); }
+
+    /* Footer */
+    .slide-footer {
+      position: absolute;
+      bottom: 16px;
+      left: 56px;
+      right: 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+    .slide.cover .slide-footer {
+      border-top-color: rgba(255, 255, 255, 0.16);
+      color: rgba(255, 255, 255, 0.72);
+      left: 68px;
+      right: 68px;
+    }
+
+    /* Layout helpers */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; flex: 1; min-height: 0; }
+    .grid-2-wide { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px; flex: 1; min-height: 0; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; flex: 1; min-height: 0; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .col { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+    .card.navy {
+      background: linear-gradient(145deg, var(--navy) 0%, #123663 100%);
+      color: #fff;
+      border-color: transparent;
+    }
+    .card.navy h3, .card.navy .muted { color: #fff; }
+    .card.navy .sub { color: #cbd8e6; }
+    .card.blue-tint { background: var(--blue-light); border-color: #bfd7f2; }
+    .card.purple-tint { background: var(--purple-light); border-color: #d7c4f0; }
+    .card.ok-tint { background: var(--ok-bg); border-color: #b7dfc1; }
+    .card.warn-tint { background: var(--warn-bg); border-color: #f3dc9b; }
+
+    /* Lists */
+    ul.clean {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    ul.clean li {
+      position: relative;
+      padding-left: 22px;
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--text);
+    }
+    ul.clean li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--blue);
+      font-weight: 800;
+    }
+    .card.navy ul.clean li { color: #e8eff7; }
+    .card.navy ul.clean li::before { color: #6bb0ff; }
+
+    /* Stat pills & boxes */
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(11, 37, 69, 0.05);
+    }
+    .stat-num {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1.1;
+    }
+    .stat-num.purple { color: var(--purple); }
+    .stat-num.navy { color: var(--navy); }
+    .stat-num.ok { color: var(--ok-fg); }
+    .stat-label {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--blue-light);
+      color: var(--navy);
+    }
+    .pill.purple { background: var(--purple-light); color: var(--purple); }
+    .pill.ok { background: var(--ok-bg); color: var(--ok-fg); }
+    .pill.err { background: var(--err-bg); color: var(--err-fg); }
+    .pill.warn { background: var(--warn-bg); color: var(--warn-fg); }
+    .pill.dark { background: rgba(255,255,255,0.14); color: #fff; border: 1px solid rgba(255,255,255,0.22); }
+
+    /* Stepper */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13.5px;
+      line-height: 1.35;
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-num.purple { background: var(--purple); }
+
+    /* Bottom highlight banner */
+    .banner {
+      margin-top: 16px;
+      padding: 13px 18px;
+      border-radius: 12px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .banner strong { color: #8ec5ff; }
+
+    /* Architecture layers */
+    .arch-layer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--blue);
+      border-radius: 10px;
+      padding: 11px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+    .arch-layer.purple { border-left-color: var(--purple); }
+    .arch-layer.navy { border-left-color: var(--navy); }
+    .arch-layer.ok { border-left-color: var(--ok-fg); }
+    .arch-title { font-weight: 800; font-size: 14.5px; color: var(--navy); }
+    .arch-desc { font-size: 13px; color: var(--muted); }
+
+    /* Code tag */
+    code {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.9em;
+      background: rgba(11, 37, 69, 0.07);
+      padding: 1px 6px;
+      border-radius: 5px;
+      color: var(--navy);
+    }
+    .card.navy code {
+      background: rgba(255, 255, 255, 0.14);
+      color: #d7ebff;
+    }
+
+    /* Timeline */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 6px;
+    }
+    .phase-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    /* Floating controls */
+    .controls {
+      position: fixed;
+      bottom: 14px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(7, 25, 48, 0.88);
+      backdrop-filter: blur(8px);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      z-index: 100;
+      color: #fff;
+      font-size: 13px;
+    }
+    .controls button {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .controls button:hover { background: rgba(255, 255, 255, 0.25); }
+    .controls .counter {
+      padding: 0 8px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #cfe4ff;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--crimson);
+      transition: width 0.25s ease;
+      z-index: 120;
+    }
+
+    /* Speaker notes drawer */
+    .notes-panel {
+      position: fixed;
+      left: 50%;
+      bottom: 64px;
+      transform: translateX(-50%);
+      width: min(920px, 92vw);
+      background: rgba(7, 25, 48, 0.96);
+      color: #e8eff7;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 16px 22px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+      z-index: 110;
+      display: none;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .notes-panel.open { display: block; }
+    .notes-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8ec5ff;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Overview Grid Modal */
+    .overview {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 25, 48, 0.94);
+      z-index: 200;
+      display: none;
+      padding: 36px;
+      overflow-y: auto;
+    }
+    .overview.open { display: block; }
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      max-width: 1200px;
+      margin: 20px auto 0;
+    }
+    .overview-item {
+      background: #122d52;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 16px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    .overview-item:hover { transform: translateY(-2px); border-color: #6bb0ff; }
+    .overview-item.current { border-color: var(--crimson); }
+    .overview-item .ov-num { font-size: 12px; font-weight: 800; color: #8ec5ff; margin-bottom: 4px; }
+    .overview-item .ov-title { font-size: 15px; font-weight: 700; line-height: 1.3; }
+
+    /* Print to PDF (16:9 exact slides) */
+    @media print {
+      @page {
+        size: 1280px 720px;
+        margin: 0;
+      }
+      html, body {
+        background: #fff !important;
+        overflow: visible !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .controls, .notes-panel, .progress-bar, .overview { display: none !important; }
+      .stage {
+        display: block !important;
+        padding: 0 !important;
+        height: auto !important;
+        width: auto !important;
+      }
+      .deck {
+        width: 1280px !important;
+        height: auto !important;
+        transform: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+      }
+      .slide {
+        position: relative !important;
+        display: flex !important;
+        page-break-after: always;
+        break-after: page;
+        animation: none !important;
+      }
+      .slide:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <div class="stage">
+    <div class="deck" id="deck">
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 1: TYTUŁOWY                                                -->
+      <!-- ================================================================ -->
+      <section class="slide cover active"
+               data-title="Kompas Kompetencji — Wprowadzenie"
+               data-notes="30 sek. Przywitanie jury. Przedstawiamy Kompas Kompetencji — kompletne, gotowe do wdrożenia narzędzie wspierające przełożonych i HR w Ministerstwie Cyfryzacji w przeprowadzeniu pierwszej oceny i oceny okresowej w służbie cywilnej. Łączymy w jednym miejscu formalny proces, model kompetencyjny i lokalnego, ugruntowanego asystenta AI.">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="pill dark">HACKNATION 2026 &nbsp;·&nbsp; MINISTERSTWO CYFRYZACJI — BDG</div>
+          <div class="pill dark">PROTOTYP + GOTOWOŚĆ PRODUKCYJNA</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1.35fr 0.65fr; gap:40px; align-items:center; margin: auto 0;">
+          <div>
+            <div style="font-size:15px; font-weight:700; letter-spacing:0.12em; color:#8ec5ff; text-transform:uppercase; margin-bottom:14px;">
+              System wsparcia ocen pracowniczych w służbie cywilnej
+            </div>
+            <h1>Kompas Kompetencji</h1>
+            <p style="font-size:21px; line-height:1.45; color:#d7e4f2; margin-top:18px; max-width:680px;">
+              Jedno spójne narzędzie prowadzące przełożonego krok po kroku przez
+              <strong style="color:#fff;">proces formalny</strong>,
+              <strong style="color:#fff;">model kompetencyjny</strong> i
+              <strong style="color:#fff;">rozmowę oceniającą</strong> — z lokalnym asystentem AI (Bielik + RAG),
+              który doradza, ale <strong style="color:#8ec5ff;">nigdy nie zastępuje decyzji człowieka</strong>.
+            </p>
+            <div class="pill-row" style="margin-top:28px;">
+              <span class="pill dark">✓ Pierwsza ocena (2015) &amp; Okresowa (2016)</span>
+              <span class="pill dark">✓ 14 kompetencji · 49 wskaźników</span>
+              <span class="pill dark">✓ Lokalny Bielik 11B (Apache 2.0)</span>
+              <span class="pill dark">✓ Eksport PDF + Panel HR</span>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:center;">
+            <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Kompas Kompetencji">
+              <circle cx="150" cy="150" r="136" stroke="rgba(255,255,255,0.16)" stroke-width="2" stroke-dasharray="6 6"/>
+              <circle cx="150" cy="150" r="110" fill="rgba(255,255,255,0.06)" stroke="rgba(142,197,255,0.45)" stroke-width="2.5"/>
+              <circle cx="150" cy="150" r="78" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+              <!-- Cardinal ticks -->
+              <line x1="150" y1="26" x2="150" y2="48" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+              <line x1="150" y1="252" x2="150" y2="274" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="26" y1="150" x2="48" y2="150" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="252" y1="150" x2="274" y2="150" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/>
+              <!-- Compass needle -->
+              <polygon points="150,58 170,150 150,136 130,150" fill="#d4213d"/>
+              <polygon points="150,242 170,150 150,164 130,150" fill="#ffffff"/>
+              <circle cx="150" cy="150" r="12" fill="#0b2545" stroke="#8ec5ff" stroke-width="4"/>
+              <!-- Labels -->
+              <text x="150" y="18" text-anchor="middle" fill="#8ec5ff" font-size="11" font-weight="700" font-family="Segoe UI, sans-serif">PRAWO</text>
+              <text x="150" y="294" text-anchor="middle" fill="#8ec5ff" font-size="11" font-weight="700" font-family="Segoe UI, sans-serif">ROZWÓJ</text>
+              <text x="14" y="154" text-anchor="middle" fill="#8ec5ff" font-size="11" font-weight="700" font-family="Segoe UI, sans-serif">AI</text>
+              <text x="286" y="154" text-anchor="middle" fill="#8ec5ff" font-size="11" font-weight="700" font-family="Segoe UI, sans-serif">HR</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji — Wyzwanie: Ministerstwo Cyfryzacji (Biuro Dyrektora Generalnego)</span>
+          <span>Slajd 1 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 2: PROBLEM                                                 -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Problem — Rozproszone przepisy i subiektywność oceny"
+               data-notes="30 sek. Z czego wynika wyzwanie? Przełożony w służbie cywilnej nie ocenia intuicyjnie — musi naraz stosować ustawę, dwa odrębne rozporządzenia, poradniki KPRM i model 14 kompetencji z 49 wskaźnikami. Bez jednego narzędzia rośnie ryzyko błędów formalnych (terminy, wybór arkusza A/B/C) oraz rozbieżnej interpretacji zachowań między działami.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">01 · Kontekst i wyzwanie</div>
+            <h2>Dlaczego ocenianie w służbie cywilnej wymaga wsparcia?</h2>
+          </div>
+          <div class="header-badge">Merytoryka · 25%</div>
+        </div>
+
+        <div class="grid-2-wide">
+          <div class="col">
+            <div class="card" style="flex:1; justify-content:center;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <span class="pill err">Ryzyko formalne</span>
+                <h3 style="margin:0;">Rozproszone przepisy i rygorystyczne terminy</h3>
+              </div>
+              <p style="font-size:14.5px; color:var(--muted); line-height:1.5;">
+                Przełożony musi łączyć <strong>ustawę o służbie cywilnej</strong>, <strong>2 rozporządzenia (2015 i 2016)</strong>,
+                poradniki KPRM oraz reguły obliczania terminów z <strong>Kodeksu cywilnego (art. 111–115)</strong>.
+                Błąd w doborze arkusza (A/B/C) lub terminie (21 / 30 dni, przedłużenia) grozi sprzeciwem.
+              </p>
+            </div>
+
+            <div class="card" style="flex:1; justify-content:center;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <span class="pill warn">Subiektywność</span>
+                <h3 style="margin:0;">Trudność przełożenia zachowań na skalę ocen</h3>
+              </div>
+              <p style="font-size:14.5px; color:var(--muted); line-height:1.5;">
+                Pojęcia takie jak <em>Komunikacja</em> czy <em>Myślenie analityczne</em> są szerokie.
+                Bez powiązania oceny z konkretnymi <strong>wskaźnikami behawioralnymi (49)</strong> i faktami (STAR),
+                oceny stają się niespójne między przełożonymi.
+              </p>
+            </div>
+
+            <div class="card" style="flex:1; justify-content:center;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <span class="pill purple">Rozmowa i HR</span>
+                <h3 style="margin:0;">Brak wsparcia w rozmowie i bieżącym monitoringu</h3>
+              </div>
+              <p style="font-size:14.5px; color:var(--muted); line-height:1.5;">
+                Ocena powinna budować wartościowy feedback i <strong>IPRZ</strong>, a kadry (HR) potrzebują
+                jednego widoku terminów, statusów i przypomnień zamiast ręcznych arkuszy.
+              </p>
+            </div>
+          </div>
+
+          <div class="card navy" style="justify-content:space-between;">
+            <div>
+              <div class="pill dark" style="margin-bottom:14px;">NASZA ODPOWIEDŹ</div>
+              <h3 style="font-size:24px; line-height:1.25; margin-bottom:14px;">
+                Jedno narzędzie zamiast 5 PDF-ów i rozproszonych plików
+              </h3>
+              <ul class="clean" style="gap:14px; margin-top:10px;">
+                <li><strong>Prowadzenie krok po kroku</strong> z walidacją przepisów przed kolejnym etapem.</li>
+                <li><strong>Automatyczny dobór arkusza A/B/C</strong> na podstawie wgranego pliku OSP (<code>.docx</code> / <code>.pdf</code>).</li>
+                <li><strong>Ocena oparta na zachowaniach</strong> z pomocniczą sugestią poziomu i wyłączną decyzją przełożonego.</li>
+                <li><strong>Lokalny Asystent AI (Bielik)</strong> odpowiadający na pytania prawne z cytowaniami oraz przygotowujący rozmowę.</li>
+                <li><strong>Panel HR i eksport PDF</strong> eliminujące ręczną biurokrację.</li>
+              </ul>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.1); border-radius:10px; padding:12px 14px; margin-top:14px; font-size:13.5px; color:#d7e8ff;">
+              <strong>Cel:</strong> spójna, obiektywna, zgodna z prawem ocena — przy pełnej odpowiedzialności przełożonego.
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 2 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 3: ROZWIĄZANIE — DWIE KOMPLETNE ŚCIEŻKI PROCESU            -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Rozwiązanie — Dwie kompletne ścieżki procesu"
+               data-notes="40 sek. Zaimplementowaliśmy obie pełne ścieżki wymagane w służbie cywilnej. Pierwsza ocena z 2015 r. obejmuje rozmowę wstępną w 21 dni, pełne sprawozdanie ocenianego (Załącznik nr 3, min. 7 miesięcy), ocenę 5 elementów w skali 3/5/7 pkt oraz egzamin. Ocena okresowa z 2016 r. obsługuje analizę OSP, formularze A/B/C, 30 dni (lub 7 dni przy ponownej ocenie po 6 mies.), wskaźniki 1–9 pkt, wniosek o kolejny stopień (Część III) oraz pouczenie o 7-dniowym sprzeciwie.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">02 · Logika procesu</div>
+            <h2>Dwie kompletne ścieżki zgodne z rozporządzeniami</h2>
+          </div>
+          <div class="header-badge">Zgodność prawna · 100%</div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Ścieżka 1 -->
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <h3 style="margin:0; color:var(--blue);">Ścieżka 1: Pierwsza ocena</h3>
+              <span class="pill">Rozp. 23.07.2015 · 3 / 5 / 7 pkt</span>
+            </div>
+            <div class="steps">
+              <div class="step-item">
+                <div class="step-num">1</div>
+                <div><strong>Rozmowa wstępna</strong> — termin ustawowy <strong>21 dni</strong> od nawiązania stosunku pracy (omówienie zadań i kryteriów).</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">2</div>
+                <div><strong>Sprawozdanie ocenianego (Zał. nr 3)</strong> — walidacja okresu <strong>≥ 7 mies.</strong>, główne zadania, problemy, nowe kompetencje, usprawnienia.</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">3</div>
+                <div><strong>Ocena 5 elementów kompetencyjnych</strong> — wskaźniki behawioralne, notatki STAR i sugestia poziomu (3 / 5 / 7 pkt).</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">4</div>
+                <div><strong>Rozmowa, egzamin i wynik końcowy</strong> — kontrola zaliczenia egzaminu ze służby przygotowawczej + zapoznanie i PDF.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ścieżka 2 -->
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <h3 style="margin:0; color:var(--purple);">Ścieżka 2: Ocena okresowa</h3>
+              <span class="pill purple">Rozp. 04.04.2016 · A / B / C · 1–9 pkt</span>
+            </div>
+            <div class="steps">
+              <div class="step-item">
+                <div class="step-num purple">1</div>
+                <div><strong>Analiza OSP (<code>.docx</code> / <code>.pdf</code>)</strong> — rekomendacja formularza <strong>A / B / C</strong> (z opcją nadpisania) i kryteriów dodatkowych.</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num purple">2</div>
+                <div><strong>Ustalenie kryteriów (Część I)</strong> — max 3 dodatkowe; termin <strong>30 dni</strong> (lub <strong>7 dni</strong> przy ponownej ocenie po 6 mies. — art. 81 ust. 9).</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num purple">3</div>
+                <div><strong>Ocena wskaźników i rozmowa oceniająca</strong> — skala 1–9 pkt, dowody STAR, wsparcie Asystenta rozmowy AI i wnioski do IPRZ.</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num purple">4</div>
+                <div><strong>Wynik (Cz. II), Wniosek o stopień (Cz. III) i Pouczenie</strong> — automatyczny wniosek dla urzędnika mianowanego + <strong>7 dni</strong> na sprzeciw.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="banner">
+          <div>
+            <strong>Silnik terminów (art. 111–115 KC):</strong> automatyczny kalendarz świąt w Polsce, przesuwanie terminów z weekendów/świąt oraz obsługa <strong>przedłużeń przy nieobecnościach</strong> (§ 5 rozp. 2015 / art. 81 ust. 8 ustawy).
+          </div>
+          <span class="pill dark" style="white-space:nowrap;">Walidacja na każdym kroku</span>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 3 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 4: UX — PERSPEKTYWA PRZEŁOŻONEGO I HR                      -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="UX — Interfejs Przełożonego i Panel HR"
+               data-notes="35 sek. Zaprojektowaliśmy aplikację pod realną pracę biurową — czysty, czytelny kreator desktop/tablet ze świadomą blokadą smartfonów poniżej 768 px, dokładnie według wymogu MC. Przełożony ma po lewej kreator krok po kroku, a po prawej kontekstowy panel Asystenta AI. Kadry (HR) dostają osobny panel monitoringu z alertami terminów i wysyłką przypomnień.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">03 · Doświadczenie użytkownika</div>
+            <h2>Intuicyjny kreator dla Przełożonego i monitoring dla HR</h2>
+          </div>
+          <div class="header-badge blue">UX &amp; UI · 25%</div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Przełożony -->
+          <div class="card" style="justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">Perspektywa Przełożonego</h3>
+                <span class="pill">Rola: supervisor</span>
+              </div>
+              <!-- Mini UI wireframe -->
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:14px;">
+                <div style="display:flex; gap:6px; margin-bottom:10px;">
+                  <span style="background:var(--navy); color:#fff; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;">1. OSP ✓</span>
+                  <span style="background:var(--blue); color:#fff; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;">2. Kryteria ✓</span>
+                  <span style="background:var(--purple); color:#fff; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;">3. Ocena (aktywny)</span>
+                  <span style="background:#e2e8f0; color:var(--muted); font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;">4. Rozmowa → PDF</span>
+                </div>
+                <div style="display:grid; grid-template-columns: 1.45fr 1fr; gap:8px;">
+                  <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:12px;">
+                    <div style="font-weight:700; color:var(--navy); margin-bottom:4px;">Kreator oceny + dowody STAR</div>
+                    <div style="color:var(--muted);">Wskaźniki behawioralne, sugestia systemu i jawny wybór oceny przez przełożonego.</div>
+                  </div>
+                  <div style="background:var(--purple-light); border:1px solid #d7c4f0; border-radius:8px; padding:10px; font-size:12px;">
+                    <div style="font-weight:700; color:var(--purple); margin-bottom:4px;">Panel boczny AI</div>
+                    <div style="color:var(--text);">Zakładki: <em>Asystent formalny</em> oraz <em>Asystent rozmowy</em>.</div>
+                  </div>
+                </div>
+              </div>
+              <ul class="clean">
+                <li><strong>Upload pliku OSP</strong> (<code>.docx</code> / <code>.pdf</code>) z automatyczną analizą stanowiska.</li>
+                <li><strong>Okno terminów i przedłużeń</strong> dostępne z nagłówka na każdym etapie.</li>
+                <li><strong>Eksport dokumentacji</strong> do gotowego arkusza <strong>PDF / HTML</strong> jednym kliknięciem.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- HR + Desktop rule -->
+          <div class="col">
+            <div class="card" style="flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">Perspektywa Kadr / Administratora</h3>
+                <span class="pill ok">Rola: hr / admin</span>
+              </div>
+              <ul class="clean">
+                <li><strong>Dashboard postępów</strong> — podgląd statusów wszystkich ocen w urzędzie w czasie rzeczywistym.</li>
+                <li><strong>Alerty terminów</strong> — wyróżnienie zbliżających się i zaległych terminów (rozmowa wstępna, kryteria, ocena).</li>
+                <li><strong>Wysyłka przypomnień</strong> — ręcznie z panelu HR lub cyklicznie przez worker SMTP TLS.</li>
+              </ul>
+            </div>
+
+            <div class="card blue-tint" style="padding:16px 20px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <div>
+                  <h3 style="margin:0 0 4px 0; font-size:16px;">Zgodność z wymogiem ergonomii MC: Desktop &amp; Tablet</h3>
+                  <p style="font-size:13.5px; color:var(--text); line-height:1.4;">
+                    Interfejs celowo <strong>blokuje dostęp na smartfonach (<code>&lt; 768px</code>)</strong>, gwarantując
+                    czytelność formularzy, wskaźników behawioralnych i dokumentacji kadrowej.
+                  </p>
+                </div>
+                <div style="font-size:28px; font-weight:800; color:var(--navy); white-space:nowrap;">≥ 768px</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 4 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 5: MODEL KOMPETENCYJNY I POMOCNICZA SUGESTIA               -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Model kompetencyjny i pomocnicza sugestia poziomu"
+               data-notes="35 sek. Sercem aplikacji jest oficjalny model kompetencyjny Ministerstwa Cyfryzacji — zaimportowaliśmy wszystkie 14 kompetencji i 49 wskaźników behawioralnych. Przełożony nie zgaduje cyfry: wybiera konkretne zachowanie, może dopisać dowód STAR lub wskazać Brak podstaw. System oblicza sugestię (MeanNearestStrategy), ale nigdy nie narzuca wyniku — ostateczny poziom zawsze zatwierdza człowiek.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">04 · Obiektywizacja oceny</div>
+            <h2>Model kompetencyjny: od zachowań do świadomej decyzji</h2>
+          </div>
+          <div class="header-badge ok">Human-in-the-Loop</div>
+        </div>
+
+        <div class="grid-4" style="margin-bottom:18px;">
+          <div class="stat-box">
+            <div class="stat-num navy">14</div>
+            <div class="stat-label">Kompetencji z arkusza MC</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">49</div>
+            <div class="stat-label">Wskaźników behawioralnych</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num purple">STAR</div>
+            <div class="stat-label">Dowody (Sytuacja–Działanie–Rezultat)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num ok">100%</div>
+            <div class="stat-label">Decyzja po stronie przełożonego</div>
+          </div>
+        </div>
+
+        <div class="card" style="flex:1; justify-content:space-between;">
+          <h3>Jak działa mechanizm oceny kompetencji w Kompasie?</h3>
+
+          <div style="display:grid; grid-template-columns: 1fr 34px 1fr 34px 1fr; align-items:center; gap:8px; margin: 10px 0;">
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:16px; height:100%;">
+              <span class="pill" style="margin-bottom:8px;">Krok A · Obserwacja</span>
+              <div style="font-weight:700; font-size:15px; margin-bottom:6px;">Wybór zachowań + STAR</div>
+              <p style="font-size:13.5px; color:var(--muted); line-height:1.45;">
+                Dla każdego wskaźnika przełożony wybiera obserwowalny opis zachowania (lub <em>Brak podstaw</em>)
+                i może zapisać fakt w metodzie <strong>STAR</strong> jako podstawę rozmowy.
+              </p>
+            </div>
+
+            <div style="text-align:center; font-size:24px; font-weight:800; color:var(--blue);">→</div>
+
+            <div style="background:var(--purple-light); border:1px solid #d7c4f0; border-radius:12px; padding:16px; height:100%;">
+              <span class="pill purple" style="margin-bottom:8px;">Krok B · Sugestia</span>
+              <div style="font-weight:700; font-size:15px; margin-bottom:6px;"><code>MeanNearestStrategy</code></div>
+              <p style="font-size:13.5px; color:var(--text); line-height:1.45;">
+                Algorytm liczy średnią z ocenionych wskaźników (min. pokrycie <code>50%</code>, konserwatywny
+                <code>tie_break: lower</code>) i wskazuje najbliższy poziom na skali (3/5/7 lub 1–9).
+              </p>
+            </div>
+
+            <div style="text-align:center; font-size:24px; font-weight:800; color:var(--ok-fg);">→</div>
+
+            <div style="background:var(--ok-bg); border:1px solid #b7dfc1; border-radius:12px; padding:16px; height:100%;">
+              <span class="pill ok" style="margin-bottom:8px;">Krok C · Decyzja</span>
+              <div style="font-weight:700; font-size:15px; margin-bottom:6px;">Jawny wybór przełożonego</div>
+              <p style="font-size:13.5px; color:var(--text); line-height:1.45;">
+                Sugestia ma status <strong>wyłącznie pomocniczy</strong>. Przełożony sam wybiera ostateczną
+                ocenę cząstkową — może ją przyjąć lub świadomie skorygować.
+              </p>
+            </div>
+          </div>
+
+          <div style="font-size:13.5px; color:var(--muted); background:var(--bg); border-radius:8px; padding:10px 14px; border-left:4px solid var(--blue);">
+            <strong>Wartość dla urzędu:</strong> Ujednolicenie standardów oceniania między departamentami oraz gotowy, oparty na faktach materiał do rozmowy rozwojowej i obrony oceny przy ewentualnym sprzeciwie.
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 5 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 6: LOKALNY ASYSTENT AI (BIELIK + HYBRID RAG)               -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Lokalny Asystent AI (Bielik + Hybrid RAG)"
+               data-notes="40 sek. Nasz Asystent AI jest w 100% suwerenny i darmowy: działa lokalnie na polskim modelu open-source Bielik 11B (Apache 2.0) przez Ollama — żadne dane kadrowe nie opuszczają infrastruktury urzędu. Wykorzystujemy HybridRetriever: połączenie BM25 (świetnego dla numerów paragrafów i artykułów) z wielojęzycznymi embeddingami nad 277 chunkami z oficjalnych źródeł. Asystent działa w dwóch trybach: formalnym (z cytowaniami) i rozmowy oceniającej.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">05 · Suwerenne i ugruntowane AI</div>
+            <h2>Lokalny Asystent AI: polski Bielik 11B + Hybrid RAG</h2>
+          </div>
+          <div class="header-badge purple">Jakość AI · 20%</div>
+        </div>
+
+        <!-- Pipeline diagram -->
+        <div class="card" style="padding:16px 20px; margin-bottom:16px;">
+          <div style="display:grid; grid-template-columns: 1fr 26px 1.25fr 26px 1.15fr 26px 1fr; align-items:center; gap:6px;">
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; text-align:center;">
+              <div style="font-size:11px; font-weight:800; color:var(--muted);">BAZA WIEDZY</div>
+              <div style="font-size:20px; font-weight:800; color:var(--navy);">277 chunków</div>
+              <div style="font-size:11.5px; color:var(--muted);">Ustawa, 2 rozp., KPRM, FAQ, model</div>
+            </div>
+            <div style="text-align:center; font-weight:800; color:var(--blue);">→</div>
+            <div style="background:var(--blue-light); border:1px solid #bfd7f2; border-radius:10px; padding:10px 12px; text-align:center;">
+              <div style="font-size:11px; font-weight:800; color:var(--blue);">HYBRID RETRIEVER</div>
+              <div style="font-size:14px; font-weight:800; color:var(--navy);">BM25 (0.65) + MiniLM-L12</div>
+              <div style="font-size:11.5px; color:var(--muted);">Precyzja paragrafów + semantyka</div>
+            </div>
+            <div style="text-align:center; font-weight:800; color:var(--purple);">→</div>
+            <div style="background:var(--purple-light); border:1px solid #d7c4f0; border-radius:10px; padding:10px 12px; text-align:center;">
+              <div style="font-size:11px; font-weight:800; color:var(--purple);">LOKALNY LLM (OLLAMA)</div>
+              <div style="font-size:15px; font-weight:800; color:var(--navy);">Bielik 11B v2.3</div>
+              <div style="font-size:11.5px; color:var(--muted);">Apache 2.0 · 100% on-premise</div>
+            </div>
+            <div style="text-align:center; font-weight:800; color:var(--ok-fg);">→</div>
+            <div style="background:var(--ok-bg); border:1px solid #b7dfc1; border-radius:10px; padding:10px 12px; text-align:center;">
+              <div style="font-size:11px; font-weight:800; color:var(--ok-fg);">ODPOWIEDŹ</div>
+              <div style="font-size:14px; font-weight:800; color:var(--navy);">Cytowania źródeł</div>
+              <div style="font-size:11.5px; color:var(--muted);">lub odmowa przy braku danych</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <h3 style="margin:0; color:var(--blue);">Tryb 1: Asystent formalny</h3>
+              <span class="pill">Przepisy &amp; FAQ</span>
+            </div>
+            <ul class="clean">
+              <li>Odpowiada na pytania o procedurę pierwszej oceny i oceny okresowej <strong>wyłącznie na podstawie źródeł</strong>.</li>
+              <li>Do każdej odpowiedzi dołącza <strong>jawne cytowania</strong> (akt prawny, paragraf, poradnik KPRM).</li>
+              <li>Poniżej progu trafności (<code>min_relevance: 0.35</code>) otwarcie komunikuje brak danych — <strong>zero halucynacji</strong>.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <h3 style="margin:0; color:var(--purple);">Tryb 2: Asystent rozmowy</h3>
+              <span class="pill purple">Kontekst aktywnej oceny</span>
+            </div>
+            <ul class="clean">
+              <li>Analizuje wybrane kryteria, wskaźniki i notatki STAR z bieżącej oceny pracownika.</li>
+              <li>Generuje <strong>spersonalizowany plan rozmowy</strong>: pytania otwierające, argumentację mocnych stron i obszarów rozwoju.</li>
+              <li>Podpowiada konkretne kierunki do <strong>Indywidualnego Programu Rozwoju Zawodowego (IPRZ)</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 6 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 7: BEZPIECZEŃSTWO AI I GUARDRAILS                          -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Bezpieczeństwo AI, Guardrails i Zgodność Prawna"
+               data-notes="30 sek. W administracji publicznej AI musi być bezpieczne z definicji. Zbudowaliśmy dwa dedykowane guardrailsy: RatingDecisionGuardrail blokuje próby zlecenia AI wystawienia oceny, a PersonalDataGuardrail maskuje PESEL, e-mail i telefon zanim prompt w ogóle trafi do modelu. Dodatkowo kluczowe reguły prawne są zaszyte deterministycznie w kodzie — np. ocena cząstkowa 1 pkt automatycznie wyklucza wynik pozytywny.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">06 · Odpowiedzialne AI w administracji</div>
+            <h2>Zabezpieczenia (Guardrails) i deterministyczne reguły prawa</h2>
+          </div>
+          <div class="header-badge ok">Bezpieczeństwo &amp; RODO</div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card" style="border-top:4px solid var(--crimson);">
+            <span class="pill err" style="align-self:flex-start; margin-bottom:10px;">Ochrona decyzji</span>
+            <h3><code>RatingDecisionGuardrail</code></h3>
+            <p style="font-size:14px; color:var(--muted); line-height:1.5; margin-bottom:12px;">
+              Wykrywa i blokuje próby wymuszenia na AI podjęcia decyzji za przełożonego (np. <em>„Wystaw ocenę 7 pkt”</em>).
+            </p>
+            <div style="margin-top:auto; background:var(--err-bg); color:var(--err-fg); padding:10px 12px; border-radius:8px; font-size:12.5px; font-weight:600;">
+              Blokada + przypomnienie: ostateczną ocenę podejmuje wyłącznie przełożony.
+            </div>
+          </div>
+
+          <div class="card" style="border-top:4px solid var(--blue);">
+            <span class="pill" style="align-self:flex-start; margin-bottom:10px;">Ochrona PII / RODO</span>
+            <h3><code>PersonalDataGuardrail</code></h3>
+            <p style="font-size:14px; color:var(--muted); line-height:1.5; margin-bottom:12px;">
+              Automatycznie wykrywa i maskuje dane wrażliwe <strong>przed wysłaniem promptu do LLM</strong> oraz w logach aplikacji:
+            </p>
+            <div style="margin-top:auto; background:var(--blue-light); color:var(--navy); padding:10px 12px; border-radius:8px; font-size:12.5px; font-family:Consolas, monospace;">
+              PESEL → [PESEL]<br/>
+              e-mail → [EMAIL]<br/>
+              telefon → [TELEFON]
+            </div>
+          </div>
+
+          <div class="card" style="border-top:4px solid var(--ok-fg);">
+            <span class="pill ok" style="align-self:flex-start; margin-bottom:10px;">Deterministyczne prawo</span>
+            <h3>Polityki prawne w kodzie</h3>
+            <p style="font-size:14px; color:var(--muted); line-height:1.5; margin-bottom:10px;">
+              Krytycznych zasad nie powierzamy modelowi językowemu — egzekwuje je silnik <code>scoring/policies.py</code>:
+            </p>
+            <ul class="clean" style="margin-top:auto; gap:6px;">
+              <li style="font-size:13px;">Cząstkowa <strong>1 pkt</strong> = wynik negatywny (§ 11).</li>
+              <li style="font-size:13px;">Brak zdanego egzaminu = brak oceny pozytywnej.</li>
+              <li style="font-size:13px;">Wymagane uzasadnienie oceny negatywnej.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="banner">
+          <div>
+            <strong>Pełna suwerenność i darmowe narzędzia:</strong> Bielik 11B (Apache 2.0) + <code>sentence-transformers</code> + BM25 działają lokalnie — <strong>0 zł kosztów licencyjnych</strong> i brak transferu danych poza urząd.
+          </div>
+          <span class="pill dark" style="white-space:nowrap;">Ślad audytowy RODO</span>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 7 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 8: ARCHITEKTURA (SOLID & CONFIG-DRIVEN) I JAKOŚĆ           -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Architektura (SOLID, Config-Driven) i Jakość Kodu"
+               data-notes="35 sek. Od strony inżynierskiej to nie jednorazowy skrypt hackathonowy, tylko czysta architektura warstwowa SOLID w Pythonie i FastAPI. Każdy wymienny komponent — model LLM, embeddingi, baza danych, bramy HR i EZD — jest zarejestrowany w Registry i sterowany wyłącznie plikami YAML. Mamy 39 testów jednostkowych i integracyjnych, bramkę pokrycia powyżej 85%, pełne typowanie mypy i czysty lint ruff.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">07 · Technologia i inżynieria</div>
+            <h2>Architektura warstwowa SOLID &amp; Config-Driven</h2>
+          </div>
+          <div class="header-badge">Innowacyjność &amp; Jakość · 20%</div>
+        </div>
+
+        <div class="grid-2-wide">
+          <div class="col" style="justify-content:space-between;">
+            <div class="arch-layer navy">
+              <div>
+                <div class="arch-title">1. Warstwa Prezentacji (Web SPA · Desktop/Tablet)</div>
+                <div class="arch-desc">Lekki interfejs HTML5 / CSS3 / Vanilla JS serwowany przez FastAPI (blokada &lt; 768px)</div>
+              </div>
+              <span class="pill">UI</span>
+            </div>
+            <div class="arch-layer">
+              <div>
+                <div class="arch-title">2. API HTTP &amp; Bezpieczeństwo (FastAPI + Pydantic v2)</div>
+                <div class="arch-desc">Udokumentowane REST API (<code>/api/v1/docs</code>), JWT + RBAC, SSO, rate limiting</div>
+              </div>
+              <span class="pill">REST</span>
+            </div>
+            <div class="arch-layer purple">
+              <div>
+                <div class="arch-title">3. Serwisy &amp; Silniki Domenowe (DI: <code>AppContainer</code>)</div>
+                <div class="arch-desc"><code>workflow</code> · <code>scoring</code> · <code>competency</code> · <code>assistant</code> (RAG) · <code>documents</code> (PDF/HTML)</div>
+              </div>
+              <span class="pill purple">DIP</span>
+            </div>
+            <div class="arch-layer ok">
+              <div>
+                <div class="arch-title">4. Wymienne Adaptery w <code>Registry</code> (YAML Config)</div>
+                <div class="arch-desc">LLM (Bielik / Ollama / OpenAI / Gemini) · DB (Postgres / SQLite / JSON) · QNT · EZD RP · SMTP</div>
+              </div>
+              <span class="pill ok">OCP</span>
+            </div>
+          </div>
+
+          <div class="col" style="justify-content:space-between;">
+            <div class="card">
+              <h3>Sterowanie konfiguracją (Zero Vendor Lock-in)</h3>
+              <p style="font-size:13.5px; color:var(--muted); line-height:1.45; margin-bottom:10px;">
+                Zmiana modelu AI, bazy danych czy środowiska (<code>dev</code> / <code>test</code> / <code>prod</code>) odbywa się w <code>config/*.yaml</code> lub zmiennych środowiskowych — bez dotykania logiki biznesowej:
+              </p>
+              <div style="background:var(--navy); color:#cfe4ff; border-radius:8px; padding:10px 12px; font-family:Consolas, monospace; font-size:12px; line-height:1.5;">
+                KOMPAS__LLM__PROFILE=bielik<br/>
+                KOMPAS__RETRIEVER__PROVIDER=hybrid<br/>
+                KOMPAS__REPOSITORY__PROVIDER=postgres
+              </div>
+            </div>
+
+            <div class="card" style="padding:16px 20px;">
+              <h3 style="margin-bottom:10px;">Jakość potwierdzona automatycznie</h3>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="stat-box" style="padding:10px;">
+                  <div class="stat-num" style="font-size:24px;">39</div>
+                  <div class="stat-label">Testów (9 plików unit + E2E)</div>
+                </div>
+                <div class="stat-box" style="padding:10px;">
+                  <div class="stat-num ok" style="font-size:24px;">≥ 85%</div>
+                  <div class="stat-label">Bramka pokrycia <code>pytest-cov</code></div>
+                </div>
+              </div>
+              <div class="pill-row" style="margin-top:10px;">
+                <span class="pill ok">✓ mypy (typowanie)</span>
+                <span class="pill ok">✓ ruff (lint)</span>
+                <span class="pill">✓ Dockerfile + Alembic</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 8 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 9: GOTOWOŚĆ PRODUKCYJNA I INTEGRACJE URZĘDOWE              -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Gotowość produkcyjna i integracje (PostgreSQL, SSO, QNT, EZD RP)"
+               data-notes="30 sek. Wiele projektów hackathonowych kończy na mockach w pamięci. My już w ramach kodu zrealizowaliśmy fundamenty fazy produkcyjnej dla Ministerstwa Cyfryzacji: repozytorium PostgreSQL z migracjami Alembic, adaptery SSO OIDC i SAML2, rate limiting, politykę retencji RODO oraz gotowe bramy integracyjne dla QNT i EZD RP.">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">08 · Zaimplementowane fundamenty produkcyjne</div>
+            <h2>Gotowość na środowisko Ministerstwa Cyfryzacji</h2>
+          </div>
+          <div class="header-badge ok">Potencjał wdrożeniowy · 10%</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <span class="pill ok" style="align-self:flex-start; margin-bottom:8px;">Już w kodzie · Persistence &amp; Security</span>
+            <h3>Trwałość danych i bezpieczeństwo klasy enterprise</h3>
+            <ul class="clean" style="margin-top:6px;">
+              <li><strong>PostgreSQL + Alembic</strong>: zaimplementowane <code>SqlAlchemyRepository</code> (<code>postgres</code> / <code>sqlite</code>) oraz migracja schematu <code>001_initial_schema.py</code>.</li>
+              <li><strong>Tożsamość i RBAC</strong>: role <code>supervisor</code> / <code>hr</code> / <code>admin</code>, hashowanie PBKDF2-HMAC-SHA256 oraz gotowe adaptery <strong>SSO (<code>OIDC</code> / <code>SAML2</code>)</strong> pod AD / gov.pl.</li>
+              <li><strong>Utwardzenie API</strong>: <code>RateLimiter</code> na logowanie i AI, nagłówki bezpieczeństwa, walidator startowy blokujący domyślne sekrety na produkcji (<code>prod.yaml</code>).</li>
+              <li><strong>RODO &amp; Audyt</strong>: ślad audytowy zmian, maskowanie PII w logach, mechanizm retencji i anonimizacji.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <span class="pill" style="align-self:flex-start; margin-bottom:8px;">Już w kodzie · Kontrakty integracyjne</span>
+            <h3>Integracje z ekosystemem administracji publicznej</h3>
+            <ul class="clean" style="margin-top:6px;">
+              <li><strong>System kadrowy QNT (<code>QntHrGateway</code>)</strong>: przygotowany adapter do synchronizacji struktury organizacyjnej, podległości, dat umów i statusu mianowania.</li>
+              <li><strong>EZD RP / EZD PUW (<code>EzdRpArchiveGateway</code>)</strong>: gotowa brama archiwizacji do automatycznego przekazywania wygenerowanych arkuszy PDF i metadanych do akt osobowych.</li>
+              <li><strong>Powiadomienia SMTP TLS (<code>worker.py</code>)</strong>: dedykowany worker cyklicznych przypomnień o zbliżających się terminach ocen (konfigurowalny <code>reminder_lead_days</code>).</li>
+              <li><strong>Konteneryzacja</strong>: gotowy <code>Dockerfile</code> i rozdzielona konfiguracja <code>config/environments/prod.yaml</code>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="banner">
+          <div>
+            <strong>Transparentność wdrożeniowa:</strong> przed uruchomieniem w MC wymagane jest wyłącznie podpięcie docelowych endpointów API QNT/EZD, serwera IdP (SSO), certyfikatów TLS oraz testów penetracyjnych.
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026</span>
+          <span>Slajd 9 / 10</span>
+        </div>
+      </section>
+
+      <!-- ================================================================ -->
+      <!-- SLAJD 10: ROADMAP WDROŻENIA + ZAPROSZENIE NA DEMO                -->
+      <!-- ================================================================ -->
+      <section class="slide"
+               data-title="Plan wdrożenia w MC i Demo na żywo"
+               data-notes="30 sek. Podsumowanie: mamy jasną, 3-etapową ścieżkę wdrożenia — od utwardzenia w infrastrukturze MC, przez pilotaż w Biurze Dyrektora Generalnego z integracją QNT i EZD RP, aż po skalowanie na kolejne urzędy administracji rządowej dzięki architekturze Config-Driven. Zapraszamy na 5-minutowe demo działającej aplikacji!">
+        <div class="slide-header">
+          <div>
+            <div class="kicker">09 · Kierunek rozwoju</div>
+            <h2>Plan wdrożenia w MC i skalowania na administrację</h2>
+          </div>
+          <div class="header-badge purple">Od prototypu do wdrożenia</div>
+        </div>
+
+        <div class="timeline" style="flex:1;">
+          <div class="card" style="border-top:4px solid var(--blue);">
+            <span class="phase-tag" style="background:var(--blue-light); color:var(--blue);">Etap 1 · Tygodnie 1–4</span>
+            <h3>Infrastruktura i audyt w MC</h3>
+            <ul class="clean" style="margin-top:6px;">
+              <li>Uruchomienie w infrastrukturze MC (PostgreSQL, reverse proxy TLS, Vault).</li>
+              <li>Podpięcie korporacyjnego <strong>SSO (AD / gov.pl)</strong>.</li>
+              <li>Wdrożenie lokalnego serwera GPU dla <strong>Bielik 11B</strong> i testy bezpieczeństwa / WCAG.</li>
+            </ul>
+          </div>
+
+          <div class="card" style="border-top:4px solid var(--purple);">
+            <span class="phase-tag" style="background:var(--purple-light); color:var(--purple);">Etap 2 · Miesiące 2–3</span>
+            <h3>Integracje i pilotaż w BDG</h3>
+            <ul class="clean" style="margin-top:6px;">
+              <li>Produkcyjne podłączenie API <strong>QNT</strong> (kadry) oraz <strong>EZD RP</strong> (akta osobowe).</li>
+              <li>Uruchomienie automatycznego workera przypomnień <strong>SMTP TLS</strong>.</li>
+              <li>Pilotaż z przełożonymi i HR w Ministerstwie Cyfryzacji + kalibracja bazy RAG.</li>
+            </ul>
+          </div>
+
+          <div class="card" style="border-top:4px solid var(--ok-fg);">
+            <span class="phase-tag" style="background:var(--ok-bg); color:var(--ok-fg);">Etap 3 · Miesiące 4+</span>
+            <h3>Skalowanie na służbę cywilną</h3>
+            <ul class="clean" style="margin-top:6px;">
+              <li>Udostępnienie innym urzędom administracji rządowej (multi-tenant / konfiguracja YAML).</li>
+              <li>Analityka kompetencyjna (luki kompetencyjne, raporty szkoleniowe dla BDG/KPRM).</li>
+              <li>Rozbudowa o moduł monitorowania realizacji <strong>IPRZ</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card navy" style="margin-top:18px; padding:18px 24px; flex-direction:row; align-items:center; justify-content:space-between; gap:24px;">
+          <div>
+            <div style="font-size:12px; font-weight:800; letter-spacing:0.1em; color:#8ec5ff; text-transform:uppercase; margin-bottom:4px;">
+              Czas na prezentację działającego prototypu
+            </div>
+            <div style="font-size:22px; font-weight:800; color:#fff;">
+              Zapraszamy na Demo na żywo (5 min) + Q&amp;A z Bielikiem!
+            </div>
+            <div style="font-size:13.5px; color:#cbd8e6; margin-top:4px;">
+              Upload OSP → Arkusz C i kryteria → Wskaźniki + STAR + sugestia → Asystent rozmowy i formalny (Bielik RAG) → Wniosek o stopień i PDF → Panel HR
+            </div>
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div class="pill dark" style="font-size:14px; padding:8px 16px;">Kompas Kompetencji</div>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Kompas Kompetencji · HackNation 2026 — Ministerstwo Cyfryzacji</span>
+          <span>Slajd 10 / 10</span>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Speaker notes drawer -->
+  <div class="notes-panel" id="notesPanel">
+    <div class="notes-title">
+      <span>Notatki prezentera (klawisz N)</span>
+      <span id="notesSlideTitle"></span>
+    </div>
+    <div id="notesText"></div>
+  </div>
+
+  <!-- Slide overview modal -->
+  <div class="overview" id="overview">
+    <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; color:#fff;">
+      <h2 style="color:#fff; font-size:24px;">Podgląd slajdów (1–10)</h2>
+      <button onclick="toggleOverview()" style="background:rgba(255,255,255,0.16); color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; font-weight:700;">Zamknij (Esc)</button>
+    </div>
+    <div class="overview-grid" id="overviewGrid"></div>
+  </div>
+
+  <!-- Floating Controls -->
+  <div class="controls">
+    <button onclick="prevSlide()" title="Poprzedni slajd (←)">←</button>
+    <span class="counter" id="counter">1 / 10</span>
+    <button onclick="nextSlide()" title="Następny slajd (→ / Spacja)">→</button>
+    <button onclick="toggleOverview()" title="Wszystkie slajdy (G)">Slajdy</button>
+    <button onclick="toggleNotes()" title="Notatki prezentera (N)">Notatki</button>
+    <button onclick="toggleFullscreen()" title="Pełny ekran (F)">Pełny ekran</button>
+    <button onclick="window.print()" title="Zapisz jako PDF (Ctrl+P)">PDF</button>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const deck = document.getElementById("deck");
+    const counter = document.getElementById("counter");
+    const progressBar = document.getElementById("progressBar");
+    const notesPanel = document.getElementById("notesPanel");
+    const notesText = document.getElementById("notesText");
+    const notesSlideTitle = document.getElementById("notesSlideTitle");
+    const overview = document.getElementById("overview");
+    const overviewGrid = document.getElementById("overviewGrid");
+
+    let current = 0;
+
+    function fitDeck() {
+      const pad = 24;
+      const scaleX = (window.innerWidth - pad) / 1280;
+      const scaleY = (window.innerHeight - pad) / 720;
+      const scale = Math.min(scaleX, scaleY, 1.45);
+      deck.style.transform = `scale(${scale})`;
+    }
+
+    function renderOverview() {
+      overviewGrid.innerHTML = slides.map((s, idx) => `
+        <div class="overview-item ${idx === current ? "current" : ""}" onclick="goTo(${idx}); toggleOverview();">
+          <div class="ov-num">SLAJD ${idx + 1} / ${slides.length}</div>
+          <div class="ov-title">${s.dataset.title || "Slajd " + (idx + 1)}</div>
+        </div>
+      `).join("");
+    }
+
+    function updateSlide() {
+      slides.forEach((s, idx) => s.classList.toggle("active", idx === current));
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+      notesSlideTitle.textContent = slides[current].dataset.title || "";
+      notesText.textContent = slides[current].dataset.notes || "";
+      renderOverview();
+      history.replaceState(null, "", `#${current + 1}`);
+    }
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      updateSlide();
+    }
+    function nextSlide() { goTo(current + 1); }
+    function prevSlide() { goTo(current - 1); }
+    function toggleNotes() { notesPanel.classList.toggle("open"); }
+    function toggleOverview() { overview.classList.toggle("open"); }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === "Home") {
+        goTo(0);
+      } else if (e.key === "End") {
+        goTo(slides.length - 1);
+      } else if (e.key === "n" || e.key === "N") {
+        toggleNotes();
+      } else if (e.key === "g" || e.key === "G") {
+        toggleOverview();
+      } else if (e.key === "f" || e.key === "F") {
+        toggleFullscreen();
+      } else if (e.key === "Escape") {
+        overview.classList.remove("open");
+        notesPanel.classList.remove("open");
+      }
+    });
+
+    window.addEventListener("resize", fitDeck);
+
+    // Init from URL hash if present
+    const hashNum = parseInt(location.hash.replace("#", ""), 10);
+    if (!isNaN(hashNum) && hashNum >= 1 && hashNum <= slides.length) {
+      current = hashNum - 1;
+    }
+    fitDeck();
+    updateSlide();
+  </script>
+</body>
+</html>

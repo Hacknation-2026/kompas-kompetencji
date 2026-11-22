@@ -1,0 +1,19 @@
+.git/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.env
+.env.*
+data/runtime/
+data/output/
+models/embeddings/
+[Ministerstwo Cyfryzacji - Biuro Dyrektora generalnego] Kompas Kompetencji/
+PLAN.MD
+tests/
