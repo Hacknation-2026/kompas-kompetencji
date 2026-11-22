@@ -65,7 +65,7 @@ $env:KOMPAS__SECURITY__JWT_SECRET = "bardzo-dlugi-losowy-sekret-produkcyjny-min-
 ### Model LLM
 - **Z lokalnym Bielikiem (Ollama):** upewnij się, że Ollama działa i ma pobrany model:
   ```powershell
-  ollama pull SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M
+  ollama pull hf.co/speakleash/Bielik-4.5B-v3.0-Instruct-GGUF
   ollama serve
   ```
 - **Bez Ollamy (szybki tryb offline/ekstrakcyjny do testów UI):**
